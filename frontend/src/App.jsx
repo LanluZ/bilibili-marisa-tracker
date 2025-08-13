@@ -48,12 +48,10 @@ function App() {
   const [totalVideos, setTotalVideos] = useState(0)
   const videosPerPage = 15 // 每页15个视频 (3排 x 5列)
 
-  const API_BASE = 'http://localhost:8000'
-
   // 获取可用日期
   const fetchDates = async () => {
     try {
-      const response = await fetch(`${API_BASE}/dates`)
+      const response = await fetch('/api/dates')
       const data = await response.json()
       setDates(data.dates)
       if (data.dates.length > 0 && !selectedDate) {
@@ -79,7 +77,7 @@ function App() {
         params.append('date', selectedDate)
       }
 
-      const response = await fetch(`${API_BASE}/videos?${params}`)
+      const response = await fetch(`/api/videos?${params}`)
       const data = await response.json()
       
       // 确保数据的完整性，添加默认值
@@ -126,7 +124,7 @@ function App() {
   // 获取爬虫状态
   const fetchCrawlStatus = async () => {
     try {
-      const response = await fetch(`${API_BASE}/crawl/status`)
+      const response = await fetch('/api/crawl/status')
       const data = await response.json()
       setCrawlStatus(data)
     } catch (error) {
@@ -137,7 +135,7 @@ function App() {
   // 手动启动爬取
   const startCrawl = async () => {
     try {
-      const response = await fetch(`${API_BASE}/crawl/start`, {
+      const response = await fetch('/api/crawl/start', {
         method: 'POST'
       })
       if (response.ok) {
@@ -389,7 +387,7 @@ function App() {
                 <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="card-link">
                   <div className="card-image">
                     <img 
-                      src={video.pic ? `${API_BASE}/proxy/image?url=${encodeURIComponent(video.pic)}` : ''} 
+                      src={video.pic ? `/api/proxy/image?url=${encodeURIComponent(video.pic)}` : ''} 
                       alt={video.title || '无标题'}
                       onError={(e) => {
                         e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaXoOWbvueJhzwvdGV4dD48L3N2Zz4='

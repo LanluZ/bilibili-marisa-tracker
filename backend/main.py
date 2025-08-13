@@ -259,11 +259,11 @@ def start_scheduler():
             print(f"调度器出错: {e}")
             time.sleep(60)
 
-@app.get("/")
+@app.get("/api")
 async def root():
     return {"message": "Bilibili热门视频API服务"}
 
-@app.get("/videos")
+@app.get("/api/videos")
 async def get_videos(
     date: Optional[str] = None,
     sort_by: str = "view_count",  # title, online_count, view_count
@@ -310,7 +310,7 @@ async def get_videos(
     
     return {"videos": videos, "total": len(videos)}
 
-@app.get("/dates")
+@app.get("/api/dates")
 async def get_available_dates():
     """获取可用的爬取日期列表"""
     conn = sqlite3.connect('bilibili_videos.db')
@@ -322,7 +322,7 @@ async def get_available_dates():
     
     return {"dates": dates}
 
-@app.post("/crawl/start")
+@app.post("/api/crawl/start")
 async def start_crawl(background_tasks: BackgroundTasks):
     """手动启动爬取任务"""
     if is_crawling:
@@ -331,7 +331,7 @@ async def start_crawl(background_tasks: BackgroundTasks):
     background_tasks.add_task(crawl_hot_videos)
     return {"message": "爬取任务已启动"}
 
-@app.get("/crawl/status")
+@app.get("/api/crawl/status")
 async def get_crawl_status():
     """获取爬虫状态"""
     return {
@@ -339,12 +339,12 @@ async def get_crawl_status():
         "config": crawl_config.model_dump()
     }
 
-@app.get("/crawl/config")
+@app.get("/api/crawl/config")
 async def get_crawl_config():
     """获取当前爬虫配置"""
     return {"config": crawl_config.model_dump()}
 
-@app.post("/crawl/config")
+@app.post("/api/crawl/config")
 async def update_crawl_config(config: CrawlConfig):
     """更新爬虫配置"""
     global crawl_config
@@ -356,7 +356,7 @@ async def update_crawl_config(config: CrawlConfig):
     
     return {"message": "配置已更新", "config": crawl_config.model_dump()}
 
-@app.get("/proxy/image")
+@app.get("/api/proxy/image")
 async def proxy_image(url: str):
     """代理B站图片，解决防盗链问题"""
     try:
