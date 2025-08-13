@@ -84,7 +84,6 @@ def init_database():
     conn.close()
 
 def save_videos_to_db(videos: List[Dict], crawl_date: str):
-    """保存视频数据到数据库，并更新历史最高观看人数"""
     conn = sqlite3.connect('bilibili_videos.db')
     cursor = conn.cursor()
     
@@ -103,7 +102,7 @@ def save_videos_to_db(videos: List[Dict], crawl_date: str):
             else:
                 current_online = int(float(online_count_str))
         except (ValueError, TypeError):
-            print(f"⚠️ 无法解析观看人数: {video.get('online_count')} -> 使用默认值0")
+            print(f"无法解析观看人数: {video.get('online_count')} -> 使用默认值0")
             current_online = 0
             
         bvid = video.get('bvid')
@@ -128,7 +127,6 @@ def save_videos_to_db(videos: List[Dict], crawl_date: str):
                 # 当前观看人数创新高
                 max_online_count = current_online
                 max_online_time = current_time
-                print(f"🏆 {video['title'][:20]}... 创新高: {current_online} (历史: {stored_max})")
             else:
                 # 保持历史最高记录
                 max_online_count = stored_max
