@@ -60,7 +60,6 @@ class BilibiliSpider:
 
         # 使用 webdriver-manager 自动管理 ChromeDriver
         try:
-            print("尝试使用 webdriver-manager 自动下载 ChromeDriver...")
             service = Service(ChromeDriverManager().install())
             driver = webdriver.Chrome(service=service, options=options)
             print("ChromeDriver 初始化成功")
