@@ -6,6 +6,7 @@ httpx
 
 # Selenium dependencies
 selenium
+webdriver-manager
 
 # Optional: for production deployment
 gunicorn

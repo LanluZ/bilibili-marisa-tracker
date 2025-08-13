@@ -4,7 +4,10 @@ from typing import List, Dict, Optional
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class BilibiliSpider:
@@ -55,7 +58,27 @@ class BilibiliSpider:
             options.add_experimental_option("prefs", prefs)
             options.add_argument("--blink-settings=imagesEnabled=false")
 
-        driver = webdriver.Chrome(options=options)
+        # 使用 webdriver-manager 自动管理 ChromeDriver
+        try:
+            print("尝试使用 webdriver-manager 自动下载 ChromeDriver...")
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=options)
+            print("ChromeDriver 初始化成功")
+        except Exception as e:
+            print(f"使用 webdriver-manager 失败: {e}")
+            print("尝试使用系统路径中的 ChromeDriver...")
+            try:
+                # fallback 到默认方式
+                driver = webdriver.Chrome(options=options)
+                print("使用系统 ChromeDriver 成功")
+            except Exception as e2:
+                print(f"系统 ChromeDriver 也失败: {e2}")
+                print("请确保:")
+                print("1. 已安装 Chrome 浏览器")
+                print("2. ChromeDriver 版本与 Chrome 版本匹配")
+                print("3. ChromeDriver 在系统 PATH 中或使用 webdriver-manager")
+                raise e2
+            
         driver.set_page_load_timeout(self.page_load_timeout)
         driver.set_script_timeout(self.script_timeout)
 

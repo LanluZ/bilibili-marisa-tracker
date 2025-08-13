@@ -2,17 +2,44 @@ import sqlite3
 import json
 import threading
 import time
+import os
 from datetime import datetime, date
 from typing import List, Dict, Optional
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
-from api import BilibiliSpider
+
+# 兼容不同的执行方式
+try:
+    from api import BilibiliSpider  # 当在 backend 目录下运行时
+except ImportError:
+    from backend.api import BilibiliSpider  # 当在项目根目录运行时
+
 import httpx
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期管理"""
+    # 启动时执行
+    init_database()
+    
+    # 启动定时爬虫
+    global crawler_thread
+    crawler_thread = threading.Thread(target=start_scheduler, daemon=True)
+    crawler_thread.start()
+    
+    # 立即执行一次爬取
+    threading.Thread(target=crawl_hot_videos, daemon=True).start()
+    
+    yield
+    
+    # 关闭时执行（如果需要的话）
+    global stop_scheduler
+    stop_scheduler = True
 
-app = FastAPI(title="魔理沙的秘密☆书屋", version="1.0.0")
+app = FastAPI(title="魔理沙的秘密☆书屋", version="1.0.0", lifespan=lifespan)
 
 # 添加CORS中间件
 app.add_middleware(
@@ -167,31 +194,46 @@ def crawl_hot_videos():
     is_crawling = True
     try:
         print(f"开始爬取热门视频，时间: {datetime.now()}")
+        print(f"当前工作目录: {os.getcwd()}")
+        print("正在初始化爬虫...")
+        import sys
+        sys.stdout.flush()  # 强制刷新输出
+        
         with BilibiliSpider(headless=True) as spider:
+            print("爬虫初始化成功，开始获取热门视频列表")
+            sys.stdout.flush()
             # 获取热门视频列表
             videos = spider.get_hot_videos(max_videos=crawl_config.max_videos)
             print(f"获取到 {len(videos)} 个热门视频")
+            sys.stdout.flush()
             
             # 获取每个视频的在线观看人数
             for i, video in enumerate(videos):
                 try:
                     if video.get('bvid'):
+                        print(f"正在获取视频 {video.get('bvid')} 的在线人数...")
+                        sys.stdout.flush()
                         online_count = spider.get_online_total(video['bvid'], video.get('cid', -1))
                         video['online_count'] = str(online_count)
                     else:
                         video['online_count'] = "0"
                     print(f"处理进度: {i+1}/{len(videos)}")
+                    sys.stdout.flush()
                 except Exception as e:
                     print(f"获取视频 {video.get('bvid', video.get('aid'))} 在线人数失败: {e}")
                     video['online_count'] = "0"
+                    sys.stdout.flush()
             
             # 保存到数据库
             today = date.today().isoformat()
             save_videos_to_db(videos, today)
             print(f"成功保存 {len(videos)} 个视频数据到数据库")
+            sys.stdout.flush()
             
     except Exception as e:
         print(f"爬虫任务执行失败: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
         is_crawling = False
 
@@ -216,19 +258,6 @@ def start_scheduler():
         except Exception as e:
             print(f"调度器出错: {e}")
             time.sleep(60)
-
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时初始化"""
-    init_database()
-    
-    # 启动定时爬虫
-    global crawler_thread
-    crawler_thread = threading.Thread(target=start_scheduler, daemon=True)
-    crawler_thread.start()
-    
-    # 立即执行一次爬取
-    threading.Thread(target=crawl_hot_videos, daemon=True).start()
 
 @app.get("/")
 async def root():
@@ -307,13 +336,13 @@ async def get_crawl_status():
     """获取爬虫状态"""
     return {
         "is_crawling": is_crawling,
-        "config": crawl_config.dict()
+        "config": crawl_config.model_dump()
     }
 
 @app.get("/crawl/config")
 async def get_crawl_config():
     """获取当前爬虫配置"""
-    return {"config": crawl_config.dict()}
+    return {"config": crawl_config.model_dump()}
 
 @app.post("/crawl/config")
 async def update_crawl_config(config: CrawlConfig):
@@ -325,7 +354,7 @@ async def update_crawl_config(config: CrawlConfig):
     if hasattr(start_scheduler, 'last_run'):
         start_scheduler.last_run = time.time()
     
-    return {"message": "配置已更新", "config": crawl_config.dict()}
+    return {"message": "配置已更新", "config": crawl_config.model_dump()}
 
 @app.get("/proxy/image")
 async def proxy_image(url: str):
