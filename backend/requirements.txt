@@ -1,0 +1,16 @@
+# Backend dependencies
+fastapi
+uvicorn
+pydantic
+httpx
+
+# Selenium dependencies
+selenium
+
+# Database
+sqlite3
+
+# CORS middleware (included in FastAPI)
+
+# Optional: for production deployment
+gunicorn
