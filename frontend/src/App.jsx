@@ -14,6 +14,9 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('错误边界捕获到错误:', error, errorInfo)
+    // 添加更详细的错误日志
+    console.error('错误堆栈:', error.stack)
+    console.error('组件堆栈:', errorInfo.componentStack)
   }
 
   render() {
@@ -22,6 +25,12 @@ class ErrorBoundary extends Component {
         <div className="error-boundary">
           <h2>🚫 出现了一些问题</h2>
           <p>页面遇到了错误，请刷新页面重试。</p>
+          <details style={{ marginTop: '10px', padding: '10px', background: '#f5f5f5' }}>
+            <summary>错误详情 (点击查看)</summary>
+            <pre style={{ fontSize: '12px', overflow: 'auto' }}>
+              {this.state.error ? this.state.error.toString() : '未知错误'}
+            </pre>
+          </details>
           <button onClick={() => window.location.reload()} className="retry-btn">
             🔄 刷新页面
           </button>
@@ -52,13 +61,18 @@ function App() {
   const fetchDates = async () => {
     try {
       const response = await fetch('/api/dates')
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
       const data = await response.json()
-      setDates(data.dates)
-      if (data.dates.length > 0 && !selectedDate) {
-        setSelectedDate(data.dates[0])
+      const datesList = data?.dates || []
+      setDates(datesList)
+      if (datesList.length > 0 && !selectedDate) {
+        setSelectedDate(datesList[0])
       }
     } catch (error) {
       console.error('获取日期失败:', error)
+      setDates([]) // 设置为空数组，避免undefined
     }
   }
 
@@ -78,6 +92,9 @@ function App() {
       }
 
       const response = await fetch(`/api/videos?${params}`)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
       const data = await response.json()
       
       // 确保数据的完整性，添加默认值
@@ -125,10 +142,14 @@ function App() {
   const fetchCrawlStatus = async () => {
     try {
       const response = await fetch('/api/crawl/status')
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
       const data = await response.json()
-      setCrawlStatus(data)
+      setCrawlStatus(data || { is_crawling: false })
     } catch (error) {
       console.error('获取爬虫状态失败:', error)
+      setCrawlStatus({ is_crawling: false }) // 设置默认值
     }
   }
 
@@ -253,9 +274,13 @@ function App() {
               onChange={(e) => setSelectedDate(e.target.value)}
               className="select"
             >
-              {dates.map(date => (
-                <option key={date} value={date}>{date}</option>
-              ))}
+              {dates && dates.length > 0 ? (
+                dates.map(date => (
+                  <option key={date} value={date}>{date}</option>
+                ))
+              ) : (
+                <option value="">暂无数据</option>
+              )}
             </select>
           </div>
         </div>
