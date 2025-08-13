@@ -384,7 +384,6 @@ function App() {
               <div 
                 key={video.id || index} 
                 className="video-card"
-                style={{ '--index': index }}
               >
                 <div className="card-rank">#{index + 1}</div>
                 <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="card-link">
@@ -455,8 +454,8 @@ function App() {
 
       {videos.length === 0 && !loading && (
         <div className="empty-state">
-          <p>📺 暂无视频数据</p>
-          <p>请等待爬虫收集数据或手动启动爬取</p>
+          <p>服务器走丢了喵</p>
+          <p>等待后端API程序启动中...</p>
         </div>
       )}
       </div>
