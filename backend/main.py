@@ -301,8 +301,8 @@ async def get_videos(
     rows = cursor.fetchall()
     conn.close()
     
-    # 转换为字典列表
-    columns = ['id', 'bvid', 'aid', 'cid', 'title', 'pic', 'view_count', 'online_count', 'crawl_date', 'crawl_time', 'max_online_count', 'max_online_time']
+    # 转换为字典列表 - 修正字段顺序以匹配数据库表结构
+    columns = ['id', 'bvid', 'aid', 'cid', 'title', 'pic', 'view_count', 'online_count', 'max_online_count', 'max_online_time', 'crawl_date', 'crawl_time']
     videos = []
     for row in rows:
         video = dict(zip(columns, row))
