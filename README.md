@@ -6,6 +6,21 @@
 
 基于React开发，提供优雅的用户界面和强大的数据采集功能
 
+### 工作机制
+
+1. 手动模式
+2. 自动模式
+    - 每隔30分钟触发一次自动任务,可以修改`backend/main.py`改变触发时间
+   ```python
+    def start_scheduler():
+        """启动定时任务"""
+        global stop_scheduler
+        while not stop_scheduler:
+            try:
+                time.sleep(30)  # 每分钟检查一次
+                current_time = time.time()
+    ```
+
 ### 核心功能
 - **实时数据采集**: 自动爬取 B站视频数据
 - **数据可视化**: 精美的卡片式视频展示
