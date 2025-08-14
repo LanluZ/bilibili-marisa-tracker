@@ -80,7 +80,7 @@ CREATE TABLE videos (
 - **时间格式**: 使用 ISO 8601 标准时间戳
 - **唯一约束**: 基于 BVID + 爬取日期，确保数据一致性
 
-## 🕷️ 爬虫系统设计
+## 爬虫系统
 
 ### BilibiliSpider 类
 ```python
