@@ -187,7 +187,7 @@ class DatabaseManager:
             
             # 转换为字典列表
             columns = ['id', 'bvid', 'aid', 'cid', 'title', 'pic', 'view_count', 
-                      'online_count', 'max_online_count', 'max_online_time', 'crawl_date', 'crawl_time']
+                      'online_count', 'crawl_date', 'crawl_time', 'max_online_count', 'max_online_time']
             
             return [dict(zip(columns, row)) for row in rows]
     
