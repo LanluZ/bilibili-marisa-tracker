@@ -1,0 +1,273 @@
+.date-picker {
+  position: relative;
+  width: 100%;
+  min-width: 200px;
+}
+
+.date-picker-trigger {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 107, 157, 0.3);
+  border-radius: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(255, 107, 157, 0.1);
+}
+
+.date-picker-trigger:hover {
+  border-color: rgba(255, 107, 157, 0.6);
+  box-shadow: 0 8px 30px rgba(255, 107, 157, 0.2);
+  transform: translateY(-2px);
+}
+
+.date-picker-trigger.open {
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 30px rgba(255, 107, 157, 0.3);
+  transform: translateY(-2px);
+}
+
+.date-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-icon {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.date-text {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.dropdown-arrow {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  color: var(--primary-color);
+  font-size: 0.8rem;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 9998;
+  display: none; /* 默认隐藏，只在桌面端需要时显示 */
+}
+
+@media (min-width: 769px) {
+  .dropdown-backdrop {
+    display: block;
+  }
+}
+
+.date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 107, 157, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  z-index: 9999; /* 增加z-index值，确保在最顶层 */
+  overflow: hidden;
+  animation: dropdownSlideIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.search-container {
+  position: relative;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 107, 157, 0.1);
+}
+
+.date-search {
+  width: 100%;
+  padding: 12px 16px 12px 45px;
+  border: 2px solid rgba(255, 107, 157, 0.2);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.date-search:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  font-size: 1rem;
+}
+
+.date-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.date-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.date-list::-webkit-scrollbar-track {
+  background: rgba(255, 107, 157, 0.1);
+  border-radius: 3px;
+}
+
+.date-list::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-gradient);
+  border-radius: 3px;
+}
+
+.date-list::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-gradient-hover);
+}
+
+.date-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: fadeInUp 0.3s ease both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.date-item:hover {
+  background: rgba(255, 107, 157, 0.1);
+  border-left-color: var(--primary-color);
+  transform: translateX(5px);
+}
+
+.date-item.selected {
+  background: var(--primary-gradient);
+  color: white;
+  border-left-color: transparent;
+  font-weight: 600;
+}
+
+.date-item.selected:hover {
+  background: var(--primary-gradient-hover);
+  transform: translateX(5px);
+}
+
+.date-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.date-formatted {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.date-item.selected .date-formatted {
+  opacity: 0.9;
+}
+
+.no-dates {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .date-picker-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 400px;
+    max-height: 70vh;
+    z-index: 10000; /* 移动端使用更高的z-index */
+    animation: mobileDropdownSlideIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  @keyframes mobileDropdownSlideIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  
+  .date-list {
+    max-height: 50vh;
+  }
+  
+  .date-item {
+    padding: 16px;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .date-picker-trigger:hover {
+    transform: none;
+  }
+  
+  .date-picker-trigger:active {
+    transform: scale(0.98);
+  }
+  
+  .date-item:hover {
+    background: transparent;
+    transform: none;
+  }
+  
+  .date-item:active {
+    background: rgba(255, 107, 157, 0.1);
+    transform: scale(0.98);
+  }
+}

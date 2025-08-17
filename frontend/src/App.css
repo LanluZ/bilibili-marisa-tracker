@@ -220,6 +220,7 @@ body {
   width: 100%;
   max-width: 1200px;
   position: relative;
+  z-index: 100; /* 添加z-index确保下拉框可以正确显示 */
 }
 
 .controls:hover {
@@ -233,6 +234,7 @@ body {
   gap: 10px;
   min-width: 180px;
   position: relative;
+  z-index: 1; /* 确保control-group有正确的层级 */
 }
 
 .control-group label {
