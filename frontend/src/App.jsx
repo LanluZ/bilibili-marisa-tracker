@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 // 导入组件
@@ -17,7 +17,22 @@ import { useDates, useVideos, useCrawlStatus, usePagination } from './hooks/useD
 import { useSidebar } from './hooks/useSidebar.js'
 import { useVideoDetail } from './hooks/useVideoDetail.js'
 
+// 导入设备检测工具
+import { addDeviceClassToBody } from './utils/deviceDetection.js'
+
 function App() {
+  // 设备检测
+  useEffect(() => {
+    addDeviceClassToBody()
+    
+    // 监听窗口大小变化，重新检测设备类型
+    const handleResize = () => {
+      addDeviceClassToBody()
+    }
+    
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   // 排序状态
   const [sortBy, setSortBy] = useState('view_count')
   const [sortOrder, setSortOrder] = useState('desc')

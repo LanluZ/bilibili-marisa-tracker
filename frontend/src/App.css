@@ -1545,7 +1545,75 @@ body {
   box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
 }
 
-/* 视频详情卡片样式 */
+/* 触摸设备优化 - 三点按钮始终显示 */
+@media (hover: none) and (pointer: coarse) {
+  .video-detail-btn {
+    opacity: 1;
+    transform: scale(1);
+    background: rgba(255, 107, 157, 0.8);
+  }
+  
+  .video-detail-btn:active {
+    background: var(--primary-color);
+    transform: scale(0.95);
+  }
+}
+
+/* 移动端可见的按钮 */
+.video-detail-btn.mobile-visible {
+  opacity: 1;
+  transform: scale(1);
+  background: rgba(255, 107, 157, 0.8);
+}
+
+.video-detail-btn.mobile-visible:active {
+  background: var(--primary-color);
+  transform: scale(0.95);
+}
+
+/* 小屏幕设备优化 */
+@media (max-width: 768px) {
+  .video-detail-btn {
+    opacity: 1;
+    transform: scale(1);
+    background: rgba(255, 107, 157, 0.8);
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .video-detail-btn:active {
+    background: var(--primary-color);
+    transform: scale(0.95);
+  }
+}
+
+/* 全局移动端优化 */
+.touch-device .video-detail-btn {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  background: rgba(255, 107, 157, 0.8) !important;
+}
+
+.touch-device .video-detail-btn:active {
+  background: var(--primary-color) !important;
+  transform: scale(0.95) !important;
+}
+
+.mobile-device .video-detail-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+}
+
+/* 触摸反馈优化 */
+.touch-device .video-card:active {
+  transform: translateY(-8px) rotateY(1deg);
+}
+
+.touch-device .sidebar-toggle:active {
+  transform: translateY(-50%) scale(0.95);
+}
 .video-detail-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);

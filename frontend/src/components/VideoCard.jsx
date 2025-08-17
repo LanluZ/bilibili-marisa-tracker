@@ -1,9 +1,25 @@
 import { formatViewCount, formatOnlineCount, formatDateTime } from '../utils/formatters.js'
+import { useEffect, useState } from 'react'
+import { shouldUseMobileUI } from '../utils/deviceDetection.js'
 
 /**
  * 视频卡片组件
  */
 const VideoCard = ({ video, index, onShowDetail }) => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(shouldUseMobileUI())
+    }
+    
+    checkDevice()
+    window.addEventListener('resize', checkDevice)
+    
+    return () => {
+      window.removeEventListener('resize', checkDevice)
+    }
+  }, [])
   const videoUrl = video.bvid 
     ? `https://www.bilibili.com/video/${video.bvid}`
     : video.aid 
@@ -26,7 +42,7 @@ const VideoCard = ({ video, index, onShowDetail }) => {
       
       {/* 三点按钮 */}
       <button 
-        className="video-detail-btn"
+        className={`video-detail-btn ${isMobile ? 'mobile-visible' : ''}`}
         onClick={handleShowDetail}
         title="查看视频详情"
       >

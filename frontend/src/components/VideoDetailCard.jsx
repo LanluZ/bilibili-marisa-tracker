@@ -162,7 +162,7 @@ const VideoDetailCard = ({ videoDetail, loading, error, onClose }) => {
         {/* 视频简介 */}
         {videoDetail.desc && (
           <div className="detail-section">
-            <h4>📝 视频简介</h4>
+            <h4>视频简介</h4>
             <div className="detail-desc">
               {videoDetail.desc}
             </div>
@@ -172,7 +172,7 @@ const VideoDetailCard = ({ videoDetail, loading, error, onClose }) => {
         {/* 分P信息 */}
         {videoDetail.pages && videoDetail.pages.length > 1 && (
           <div className="detail-section">
-            <h4>📑 分P信息</h4>
+            <h4>分P信息</h4>
             <div className="pages-list">
               {videoDetail.pages.map((page, index) => (
                 <div key={page.cid} className="page-item">

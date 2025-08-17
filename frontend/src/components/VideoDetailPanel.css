@@ -67,15 +67,43 @@
 @media (max-width: 768px) {
   .video-detail-overlay {
     padding: 10px;
+    justify-content: center;
+    align-items: center;
   }
   
   .video-detail-container {
     max-width: 100%;
     max-height: 95vh;
     margin-left: 0;
+    margin-right: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  
+  .video-detail-overlay.visible .video-detail-container {
+    transform: translateY(0) scale(1);
   }
   
   .video-detail-overlay.sidebar-open .video-detail-container {
     margin-right: 0;
+  }
+  
+  /* 移动端关闭动画 */
+  .video-detail-overlay:not(.visible) .video-detail-container {
+    transform: translateY(30px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* 触摸设备特殊优化 */
+@media (hover: none) and (pointer: coarse) {
+  .video-detail-container {
+    /* 增加触摸区域 */
+    padding: 2px;
+  }
+  
+  .video-detail-container:hover {
+    /* 移除悬停效果 */
+    transform: translateX(0) scale(1);
+    box-shadow: var(--sidebar-shadow);
   }
 }
