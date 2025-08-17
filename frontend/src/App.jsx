@@ -51,6 +51,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [crawlStatus, setCrawlStatus] = useState({ is_crawling: false })
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   
   // 分页状态
   const [currentPage, setCurrentPage] = useState(1)
@@ -241,8 +242,97 @@ function App() {
     return () => clearInterval(interval)
   }, [])
 
+  // 点击外部区域关闭侧边栏
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarOpen && !event.target.closest('.sidebar') && !event.target.closest('.sidebar-toggle')) {
+        setSidebarOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [sidebarOpen])
+
   return (
     <div className="app">
+      {/* 侧边栏切换按钮 */}
+      <button 
+        className="sidebar-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        title="打开侧边栏"
+      >
+        {sidebarOpen ? '✕' : '☰'}
+      </button>
+
+      {/* 侧边栏 */}
+      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <h2 className="sidebar-title">项目信息</h2>
+          <p className="sidebar-subtitle">魔理沙的秘密书屋</p>
+        </div>
+        
+        <div className="sidebar-content">
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">
+              <span></span>
+              相关链接
+            </h3>
+            <div className="sidebar-links">
+              <a 
+                href="https://github.com/LanluZ/bilibili-marisa-tracker" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="sidebar-link"
+              >
+                <span className="sidebar-link-icon">⭐</span>
+                <span className="sidebar-link-text">GitHub 仓库</span>
+                <span className="sidebar-link-external">↗</span>
+              </a>
+            </div>
+          </div>
+
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">
+              <span></span>
+              数据统计
+            </h3>
+            <div className="sidebar-stats">
+              <div className="sidebar-stats-title">
+                <span></span>
+                实时统计
+              </div>
+              <div className="sidebar-stats-item">
+                <span className="sidebar-stats-label">总视频数:</span>
+                <span className="sidebar-stats-value">{totalVideos}</span>
+              </div>
+              <div className="sidebar-stats-item">
+                <span className="sidebar-stats-label">当前页:</span>
+                <span className="sidebar-stats-value">{currentPage}</span>
+              </div>
+              <div className="sidebar-stats-item">
+                <span className="sidebar-stats-label">总页数:</span>
+                <span className="sidebar-stats-value">{Math.ceil(totalVideos / videosPerPage)}</span>
+              </div>
+              <div className="sidebar-stats-item">
+                <span className="sidebar-stats-label">爬虫状态:</span>
+                <span className="sidebar-stats-value">
+                  {crawlStatus.is_crawling ? '运行中' : '空闲'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="sidebar-footer">
+          <p className="sidebar-footer-text">
+            © 2025 魔理沙的秘密书屋
+          </p>
+        </div>
+      </div>
+
       <div className="page-transition">
         <header className="header">
           <div className="header-left">
