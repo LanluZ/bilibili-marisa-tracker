@@ -173,6 +173,43 @@ async def proxy_image(url: str):
         raise HTTPException(status_code=500, detail="代理图片失败")
 
 
+@api_router.get("/video/detail")
+async def get_video_detail(bvid: Optional[str] = None, aid: Optional[str] = None):
+    """获取视频详细信息的代理接口"""
+    if not bvid and not aid:
+        raise HTTPException(status_code=400, detail="bvid或aid至少需要提供一个")
+    
+    try:
+        # 构建bilibili API请求
+        params = {}
+        if bvid:
+            params['bvid'] = bvid
+        elif aid:
+            params['aid'] = aid
+            
+        async with httpx.AsyncClient() as client:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Referer': 'https://www.bilibili.com/',
+            }
+            
+            url = "https://api.bilibili.com/x/web-interface/view"
+            response = await client.get(url, params=params, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('code') == 0:
+                    return data['data']
+                else:
+                    raise HTTPException(status_code=400, detail=data.get('message', '获取视频信息失败'))
+            else:
+                raise HTTPException(status_code=response.status_code, detail="请求bilibili API失败")
+                
+    except Exception as e:
+        print(f"获取视频详情失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取视频详情失败: {str(e)}")
+
+
 # 健康检查端点
 @api_router.get("/health")
 async def health_check():

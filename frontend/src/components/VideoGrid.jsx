@@ -3,7 +3,7 @@ import VideoCard from './VideoCard.jsx'
 /**
  * 视频网格组件
  */
-const VideoGrid = ({ videos, loading, isTransitioning }) => {
+const VideoGrid = ({ videos, loading, isTransitioning, onShowDetail }) => {
   if (loading) {
     return (
       <div className="loading">
@@ -28,7 +28,8 @@ const VideoGrid = ({ videos, loading, isTransitioning }) => {
         <VideoCard 
           key={video.id || index} 
           video={video} 
-          index={index} 
+          index={index}
+          onShowDetail={onShowDetail}
         />
       ))}
     </div>

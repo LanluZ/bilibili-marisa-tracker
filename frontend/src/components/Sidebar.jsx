@@ -8,7 +8,7 @@ const Sidebar = ({
   currentPage, 
   totalPages, 
   crawlStatus,
-  onStartCrawl 
+  onStartCrawl
 }) => {
   return (
     <>

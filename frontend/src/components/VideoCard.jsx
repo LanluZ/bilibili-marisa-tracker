@@ -3,7 +3,7 @@ import { formatViewCount, formatOnlineCount, formatDateTime } from '../utils/for
 /**
  * 视频卡片组件
  */
-const VideoCard = ({ video, index }) => {
+const VideoCard = ({ video, index, onShowDetail }) => {
   const videoUrl = video.bvid 
     ? `https://www.bilibili.com/video/${video.bvid}`
     : video.aid 
@@ -14,9 +14,24 @@ const VideoCard = ({ video, index }) => {
     e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyNSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaXoOWbvueJhzwvdGV4dD48L3N2Zz4='
   }
 
+  const handleShowDetail = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onShowDetail && onShowDetail(video.bvid, video.aid)
+  }
+
   return (
     <div className="video-card">
       <div className="card-rank">#{index + 1}</div>
+      
+      {/* 三点按钮 */}
+      <button 
+        className="video-detail-btn"
+        onClick={handleShowDetail}
+        title="查看视频详情"
+      >
+        ⋯
+      </button>
       
       <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="card-link">
         <div className="card-image">

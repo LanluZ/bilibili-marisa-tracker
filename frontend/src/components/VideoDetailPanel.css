@@ -1,0 +1,81 @@
+.video-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001; /* 确保在侧边栏之上 */
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  pointer-events: none;
+  /* 移除黑色遮罩背景 */
+}
+
+.video-detail-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+.video-detail-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  max-width: 400px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: var(--sidebar-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transform: translateX(-120px) scale(0.9);
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  margin-left: 20px; /* 距离左边的间距 */
+  opacity: 0;
+}
+
+.video-detail-overlay.visible .video-detail-container {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
+
+/* 悬停效果 */
+.video-detail-container:hover {
+  transform: translateX(0) scale(1.02);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+/* 当侧边栏打开时，调整视频详情面板位置 */
+.video-detail-overlay.sidebar-open .video-detail-container {
+  margin-right: calc(var(--sidebar-width) + 40px); /* 侧边栏宽度 + 间距 */
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* 关闭动画 */
+.video-detail-overlay:not(.visible) .video-detail-container {
+  transform: translateX(-120px) scale(0.9);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .video-detail-overlay {
+    padding: 10px;
+  }
+  
+  .video-detail-container {
+    max-width: 100%;
+    max-height: 95vh;
+    margin-left: 0;
+  }
+  
+  .video-detail-overlay.sidebar-open .video-detail-container {
+    margin-right: 0;
+  }
+}
