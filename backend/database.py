@@ -24,27 +24,48 @@ class DatabaseManager:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS videos (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    bvid TEXT,
-                    aid INTEGER,
-                    cid INTEGER,
-                    title TEXT NOT NULL,
-                    pic TEXT,
-                    view_count INTEGER,
-                    online_count TEXT,
-                    max_online_count INTEGER DEFAULT 0,
-                    max_online_time TIMESTAMP,
-                    crawl_date TEXT NOT NULL,
-                    crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE(bvid, crawl_date) ON CONFLICT REPLACE
-                )
-            ''')
+            # 检查表是否存在
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='videos'")
+            table_exists = cursor.fetchone() is not None
             
-            # 为已存在的表添加新字段（如果不存在）
-            self._add_column_if_not_exists(cursor, 'videos', 'max_online_count', 'INTEGER DEFAULT 0')
-            self._add_column_if_not_exists(cursor, 'videos', 'max_online_time', 'TIMESTAMP')
+            if not table_exists:
+                # 如果表不存在，创建包含所有字段的完整表结构
+                cursor.execute('''
+                    CREATE TABLE videos (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        bvid TEXT,
+                        aid INTEGER,
+                        cid INTEGER,
+                        title TEXT NOT NULL,
+                        pic TEXT,
+                        view_count INTEGER,
+                        online_count TEXT,
+                        crawl_date TEXT NOT NULL,
+                        crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        max_online_count INTEGER DEFAULT 0,
+                        max_online_time TIMESTAMP,
+                        UNIQUE(bvid, crawl_date) ON CONFLICT REPLACE
+                    )
+                ''')
+            else:
+                # 表已存在，检查并添加缺失的字段
+                cursor.execute("PRAGMA table_info(videos)")
+                existing_columns = {col[1] for col in cursor.fetchall()}
+                
+                # 需要的字段列表
+                required_columns = {
+                    'max_online_count': 'INTEGER DEFAULT 0',
+                    'max_online_time': 'TIMESTAMP'
+                }
+                
+                # 添加缺失的字段
+                for column_name, column_def in required_columns.items():
+                    if column_name not in existing_columns:
+                        try:
+                            cursor.execute(f'ALTER TABLE videos ADD COLUMN {column_name} {column_def}')
+                            print(f"已添加字段: {column_name}")
+                        except sqlite3.OperationalError as e:
+                            print(f"添加字段 {column_name} 失败: {e}")
             
             conn.commit()
     
@@ -167,6 +188,11 @@ class DatabaseManager:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
+            # 动态获取表的字段信息，确保字段顺序正确
+            cursor.execute("PRAGMA table_info(videos)")
+            columns_info = cursor.fetchall()
+            columns = [col[1] for col in columns_info]  # 获取字段名列表
+            
             # 构建查询语句
             if date:
                 query = "SELECT * FROM videos WHERE crawl_date = ?"
@@ -185,10 +211,7 @@ class DatabaseManager:
             cursor.execute(query, params)
             rows = cursor.fetchall()
             
-            # 转换为字典列表
-            columns = ['id', 'bvid', 'aid', 'cid', 'title', 'pic', 'view_count', 
-                      'online_count', 'crawl_date', 'crawl_time', 'max_online_count', 'max_online_time']
-            
+            # 转换为字典列表 - 使用动态获取的字段顺序
             return [dict(zip(columns, row)) for row in rows]
     
     def _build_order_clause(self, sort_by: str, order: str) -> str:
