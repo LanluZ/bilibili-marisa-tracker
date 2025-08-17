@@ -1,3 +1,44 @@
+/* CSS 自定义属性（变量）定义 */
+:root {
+  /* 主色调渐变 */
+  --primary-gradient: linear-gradient(45deg, #ff6b9d, #c44569);
+  --primary-gradient-hover: linear-gradient(45deg, #ff8eb5, #d65584);
+  --primary-gradient-extended: linear-gradient(45deg, #ff6b9d, #c44569, #f8b500);
+  
+  /* 状态渐变 */
+  --success-gradient: linear-gradient(45deg, #4CAF50, #45a049);
+  --warning-gradient: linear-gradient(45deg, #fff3cd, #ffeaa7);
+  --info-gradient: linear-gradient(45deg, #e3f2fd, #bbdefb);
+  --light-success-gradient: linear-gradient(45deg, #e8f5e8, #d4edda);
+  
+  /* 背景渐变 */
+  --white-gradient: linear-gradient(145deg, #ffffff, #f8f9fa);
+  --white-gradient-hover: linear-gradient(145deg, #fff, #fefefe);
+  --light-gray-gradient: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  --placeholder-gradient: linear-gradient(45deg, #f5f5f5, #eeeeee);
+  
+  /* 滚动条渐变 */
+  --scrollbar-gradient: linear-gradient(135deg, rgba(255, 107, 157, 0.8), rgba(196, 69, 105, 0.8));
+  --scrollbar-gradient-hover: linear-gradient(135deg, rgba(255, 107, 157, 1), rgba(196, 69, 105, 1));
+  --scrollbar-gradient-active: linear-gradient(135deg, rgba(196, 69, 105, 1), rgba(255, 107, 157, 1));
+  --scrollbar-gradient-light: linear-gradient(135deg, rgba(255, 107, 157, 0.6), rgba(196, 69, 105, 0.6));
+  --scrollbar-gradient-lighter: linear-gradient(135deg, rgba(255, 107, 157, 0.9), rgba(196, 69, 105, 0.9));
+  
+  /* 错误页面渐变 */
+  --error-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  /* 阴影变量 */
+  --primary-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+  --primary-shadow-hover: 0 8px 25px rgba(255, 107, 157, 0.5);
+  --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  --card-shadow-hover: 0 25px 60px rgba(0, 0, 0, 0.25);
+  --control-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  --control-shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --input-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  --focus-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15);
+}
+
+/* 基础重置样式 */
 * {
   margin: 0;
   padding: 0;
@@ -16,8 +57,6 @@ body {
   animation: gradientShift 15s ease infinite;
   min-height: 100vh;
   color: #333;
-  margin: 0;
-  padding: 0;
   overflow-x: hidden;
 }
 
@@ -30,15 +69,14 @@ body {
 .app {
   min-height: 100vh;
   width: 100%;
-  max-width: 1600px; /* 设置合理的最大宽度 */
+  max-width: 1600px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   padding: 20px;
-  box-sizing: border-box;
   position: relative;
-  margin: 0 auto; /* 确保水平居中 */
+  margin: 0 auto;
 }
 
 /* 页面加载动画 */
@@ -47,11 +85,11 @@ body {
   transform: translateY(20px);
   animation: fadeInUp 0.8s ease-out forwards;
   width: 100%;
-  max-width: 1400px; /* 限制内容最大宽度 */
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px; /* 统一组件间距 */
+  gap: 25px;
 }
 
 @keyframes fadeInUp {
@@ -67,7 +105,7 @@ body {
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 25px 35px;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--control-shadow);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -86,7 +124,7 @@ body {
 .header h1 {
   font-size: 2.8rem;
   font-weight: 800;
-  background: linear-gradient(45deg, #ff6b9d, #c44569, #f8b500);
+  background: var(--primary-gradient-extended);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -125,7 +163,7 @@ body {
 }
 
 .status-indicator.active {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background: var(--success-gradient);
   color: white;
   animation: pulse 2s infinite;
 }
@@ -137,7 +175,7 @@ body {
 }
 
 .crawl-btn {
-  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  background: var(--primary-gradient);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -146,13 +184,13 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.9rem;
-  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+  box-shadow: var(--primary-shadow);
 }
 
 .crawl-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.5);
-  background: linear-gradient(45deg, #ff8eb5, #d65584);
+  box-shadow: var(--primary-shadow-hover);
+  background: var(--primary-gradient-hover);
 }
 
 .crawl-btn:disabled {
@@ -181,7 +219,7 @@ body {
 
 .controls:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--control-shadow-hover);
 }
 
 .control-group {
@@ -198,7 +236,7 @@ body {
   font-size: 0.95rem;
   margin-bottom: 5px;
   transition: color 0.3s ease;
-  text-align: center; /* 标签居中 */
+  text-align: center;
 }
 
 .control-group:hover label {
@@ -214,32 +252,31 @@ body {
 
 .select {
   width: 100%;
-  padding: 14px 20px;
-  padding-right: 45px; /* 为下拉箭头留空间 */
+  padding: 14px 20px 14px 20px;
+  padding-right: 45px;
   border: 2px solid #e1e5e9;
   border-radius: 15px;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  background: var(--white-gradient);
   font-size: 0.95rem;
   font-weight: 600;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  position: relative;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  appearance: none; /* 移除默认样式 */
-  text-align: center; /* 文字居中 */
+  box-shadow: var(--input-shadow);
+  appearance: none;
+  text-align: center;
 }
 
 .select:hover {
   border-color: #ff6b9d;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(255, 107, 157, 0.25);
-  background: linear-gradient(145deg, #fff, #fefefe);
+  background: var(--white-gradient-hover);
 }
 
 .select:focus {
   outline: none;
   border-color: #ff6b9d;
-  box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.15);
+  box-shadow: var(--focus-shadow);
   transform: translateY(-2px);
 }
 
@@ -275,7 +312,7 @@ body {
 }
 
 .select option:hover {
-  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  background: var(--primary-gradient);
   color: white;
 }
 
@@ -362,7 +399,7 @@ body {
   transform: translateY(30px);
   width: 100%;
   max-width: 400px;
-  margin: 0 auto; /* 确保卡片居中 */
+  margin: 0 auto;
 }
 
 @keyframes slideInUp {
@@ -377,7 +414,7 @@ body {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--card-shadow);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   backdrop-filter: blur(20px);
@@ -385,21 +422,21 @@ body {
   width: 100%;
   max-width: 280px;
   margin: 0 auto;
-  min-height: 280px; /* 调整最小高度适应5列布局 */
+  min-height: 280px;
   display: flex;
   flex-direction: column;
 }
 
 .video-card:hover {
   transform: translateY(-12px) rotateY(2deg);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .card-rank {
   position: absolute;
   top: 15px;
   left: 15px;
-  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  background: var(--primary-gradient);
   color: white;
   padding: 8px 16px;
   border-radius: 25px;
@@ -421,7 +458,7 @@ body {
   width: 100%;
   height: 160px;
   overflow: hidden;
-  background: linear-gradient(45deg, #f5f5f5, #eeeeee);
+  background: var(--placeholder-gradient);
 }
 
 .card-image img {
@@ -460,7 +497,7 @@ body {
 
 .card-content {
   padding: 18px;
-  flex: 1; /* 让内容区域占据剩余空间 */
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -503,7 +540,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  background: var(--light-gray-gradient);
   border-radius: 12px;
   flex: 1;
   min-width: 100px;
@@ -516,7 +553,7 @@ body {
 }
 
 .stat-item.max-online {
-  background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+  background: var(--warning-gradient);
   border: 2px solid #f39c12;
   box-shadow: 0 4px 15px rgba(243, 156, 18, 0.2);
 }
@@ -527,7 +564,7 @@ body {
 }
 
 .max-online-info {
-  background: linear-gradient(45deg, #e8f5e8, #d4edda);
+  background: var(--light-success-gradient);
   border-radius: 12px;
   padding: 10px 16px;
   margin-bottom: 15px;
@@ -607,7 +644,7 @@ body {
 }
 
 .bvid {
-  background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+  background: var(--info-gradient);
   color: #1976d2;
   padding: 6px 12px;
   border-radius: 8px;
@@ -630,7 +667,7 @@ body {
   min-height: 100vh;
   padding: 40px;
   text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--error-gradient);
   color: white;
 }
 
@@ -647,7 +684,7 @@ body {
 }
 
 .retry-btn {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background: var(--success-gradient);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -1046,7 +1083,7 @@ body {
 }
 
 .page-number.active {
-  background: linear-gradient(135deg, #ff6b9d, #c44569);
+  background: var(--primary-gradient);
   border-color: #fff;
   color: #fff;
   transform: scale(1.1);
@@ -1068,7 +1105,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.8), rgba(196, 69, 105, 0.8));
+  background: var(--scrollbar-gradient);
   border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
@@ -1076,13 +1113,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, rgba(255, 107, 157, 1), rgba(196, 69, 105, 1));
+  background: var(--scrollbar-gradient-hover);
   transform: scale(1.1);
   box-shadow: 0 4px 15px rgba(255, 107, 157, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:active {
-  background: linear-gradient(135deg, rgba(196, 69, 105, 1), rgba(255, 107, 157, 1));
+  background: var(--scrollbar-gradient-active);
   transform: scale(0.95);
 }
 
@@ -1103,13 +1140,13 @@ body {
 }
 
 .video-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.6), rgba(196, 69, 105, 0.6));
+  background: var(--scrollbar-gradient-light);
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .video-grid::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.9), rgba(196, 69, 105, 0.9));
+  background: var(--scrollbar-gradient-lighter);
   box-shadow: 0 2px 8px rgba(255, 107, 157, 0.4);
 }
 
