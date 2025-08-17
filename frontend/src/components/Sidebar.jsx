@@ -7,7 +7,8 @@ const Sidebar = ({
   totalVideos, 
   currentPage, 
   totalPages, 
-  crawlStatus 
+  crawlStatus,
+  onStartCrawl 
 }) => {
   return (
     <>
@@ -50,6 +51,28 @@ const Sidebar = ({
           <div className="sidebar-section">
             <h3 className="sidebar-section-title">
               <span></span>
+              爬取任务
+            </h3>
+            <div className="crawl-control">
+              <div className="crawl-status-display">
+                <span className={`status-indicator ${crawlStatus.is_crawling ? 'active' : ''}`}>
+                  {crawlStatus.is_crawling ? '🔄 爬取中...' : '⏸️ 空闲'}
+                </span>
+              </div>
+              <button 
+                onClick={onStartCrawl} 
+                disabled={crawlStatus.is_crawling}
+                className="crawl-btn sidebar-crawl-btn"
+                title={crawlStatus.is_crawling ? '爬取正在进行中' : '手动启动爬取任务'}
+              >
+                {crawlStatus.is_crawling ? '⏳ 爬取中...' : '🚀 启动爬取'}
+              </button>
+            </div>
+          </div>
+
+          <div className="sidebar-section">
+            <h3 className="sidebar-section-title">
+              <span></span>
               数据统计
             </h3>
             <div className="sidebar-stats">
@@ -68,12 +91,6 @@ const Sidebar = ({
               <div className="sidebar-stats-item">
                 <span className="sidebar-stats-label">总页数:</span>
                 <span className="sidebar-stats-value">{totalPages}</span>
-              </div>
-              <div className="sidebar-stats-item">
-                <span className="sidebar-stats-label">爬虫状态:</span>
-                <span className="sidebar-stats-value">
-                  {crawlStatus.is_crawling ? '运行中' : '空闲'}
-                </span>
               </div>
             </div>
           </div>

@@ -1288,6 +1288,7 @@ body {
 
 .sidebar.open .sidebar-content > *:nth-child(1) { animation-delay: 0.1s; }
 .sidebar.open .sidebar-content > *:nth-child(2) { animation-delay: 0.2s; }
+.sidebar.open .sidebar-content > *:nth-child(3) { animation-delay: 0.3s; }
 
 @keyframes slideInFromRight {
   to {
@@ -1404,6 +1405,76 @@ body {
   background: rgba(255, 255, 255, 0.5);
   padding: 2px 8px;
   border-radius: 8px;
+}
+
+/* 侧边栏爬取任务控制样式 */
+.crawl-control {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 107, 157, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.crawl-status-display {
+  text-align: center;
+}
+
+.crawl-status-display .status-indicator {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  background: rgba(241, 243, 244, 0.8);
+  color: #666;
+  border: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+.crawl-status-display .status-indicator.active {
+  background: var(--success-gradient);
+  color: white;
+  animation: pulse 2s infinite;
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.sidebar-crawl-btn {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+  border: 1px solid rgba(255, 107, 157, 0.4);
+  width: 100%;
+}
+
+.sidebar-crawl-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(255, 107, 157, 0.4);
+  background: var(--primary-gradient-hover);
+  border-color: rgba(255, 107, 157, 0.6);
+}
+
+.sidebar-crawl-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  box-shadow: 0 4px 15px rgba(148, 163, 184, 0.3);
+}
+
+.sidebar-crawl-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .sidebar-footer {

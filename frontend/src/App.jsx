@@ -54,13 +54,11 @@ function App() {
         currentPage={currentPage}
         totalPages={totalPages}
         crawlStatus={crawlStatus}
+        onStartCrawl={startCrawl}
       />
 
       <div className="page-transition">
-        <Header 
-          crawlStatus={crawlStatus}
-          onStartCrawl={startCrawl}
-        />
+        <Header />
 
         <Controls
           dates={dates}
