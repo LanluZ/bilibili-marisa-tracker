@@ -1,6 +1,7 @@
 import DatePicker from './DatePicker'
 import CustomSelect from './CustomSelect'
 import bilibiliZones from '../utils/bilibiliZones.json'
+import { useState, useEffect } from 'react'
 
 /**
  * 控制面板组件
@@ -14,8 +15,39 @@ const Controls = ({
   sortOrder,
   onSortOrderChange,
   zoneFilter,
-  onZoneFilterChange
+  onZoneFilterChange,
+  zoneStats = {}
 }) => {
+  const [showSubZone, setShowSubZone] = useState(false)
+
+  // 监听主分区变化，控制子分区显示
+  useEffect(() => {
+    if (zoneFilter?.mainZone) {
+      setShowSubZone(true)
+    } else {
+      setShowSubZone(false)
+    }
+  }, [zoneFilter?.mainZone])
+
+  // 计算主分区的视频总数（包括所有子分区）
+  const getMainZoneVideoCount = (mainTid) => {
+    const zone = bilibiliZones.bilibiliZonesV2[mainTid]
+    if (!zone) return 0
+    
+    let totalCount = 0
+    
+    // 如果该主分区有子分区，统计所有子分区的视频数量
+    if (zone.children) {
+      Object.keys(zone.children).forEach(subTid => {
+        totalCount += zoneStats[subTid] || 0
+      })
+    }
+    
+    // 如果该主分区本身也有视频（某些主分区可能直接有视频），也要统计
+    totalCount += zoneStats[mainTid] || 0
+    
+    return totalCount
+  }
   // 排序方式选项
   const sortOptions = [
     { 
@@ -69,10 +101,13 @@ const Controls = ({
     
     Object.entries(zones)
       .filter(([tid, zone]) => !zone.hidden) // 过滤隐藏分区
-      .map(([tid, zone]) => ({
-        value: tid,
-        label: zone.name
-      }))
+      .map(([tid, zone]) => {
+        const videoCount = getMainZoneVideoCount(tid)
+        return {
+          value: tid,
+          label: `${zone.name} (${videoCount})`
+        }
+      })
       .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(option => mainZoneOptions.push(option))
     
@@ -95,10 +130,13 @@ const Controls = ({
     ]
     
     Object.entries(zone.children)
-      .map(([tid, name]) => ({
-        value: tid,
-        label: name
-      }))
+      .map(([tid, name]) => {
+        const videoCount = zoneStats[tid] || 0
+        return {
+          value: tid,
+          label: `${name} (${videoCount})`
+        }
+      })
       .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(option => subZoneOptions.push(option))
     
@@ -148,7 +186,7 @@ const Controls = ({
         />
       </div>
 
-      <div className="control-group">
+      <div className={`control-group sub-zone-group ${showSubZone ? 'show' : 'hide'}`}>
         <label>子分区</label>
         <CustomSelect
           value={zoneFilter?.subZone || ''}

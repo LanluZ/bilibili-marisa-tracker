@@ -336,6 +336,44 @@ class DatabaseManager:
             
             return cursor.fetchall()
 
+    def get_zone_statistics(self, crawl_date: Optional[str] = None) -> Dict[str, int]:
+        """
+        获取分区统计信息
+        
+        Args:
+            crawl_date: 爬取日期，如果为None则使用最新日期
+            
+        Returns:
+            分区统计字典，键为tid_v2，值为视频数量
+        """
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            
+            if crawl_date is None:
+                # 获取最新日期
+                cursor.execute("SELECT crawl_date FROM videos ORDER BY crawl_date DESC LIMIT 1")
+                result = cursor.fetchone()
+                if not result:
+                    return {}
+                crawl_date = result[0]
+            
+            # 统计每个分区的视频数量
+            cursor.execute('''
+                SELECT tid_v2, COUNT(*) as video_count
+                FROM videos 
+                WHERE crawl_date = ? AND tid_v2 IS NOT NULL
+                GROUP BY tid_v2
+                ORDER BY tid_v2
+            ''', (crawl_date,))
+            
+            # 转换为字典格式
+            zone_stats = {}
+            for row in cursor.fetchall():
+                tid_v2, count = row
+                zone_stats[str(tid_v2)] = count
+                
+            return zone_stats
+
 
 # 创建全局数据库管理器实例
 db_manager = DatabaseManager()

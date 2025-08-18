@@ -125,6 +125,26 @@ export const updateVideoDetail = async (bvid) => {
 }
 
 /**
+ * 获取分区统计信息
+ * @param {string} date 日期，可选
+ */
+export const getZoneStats = async (date = null) => {
+  try {
+    const params = new URLSearchParams()
+    if (date) {
+      params.append('date', date)
+    }
+    
+    const url = `/api/zone/stats${params.toString() ? '?' + params.toString() : ''}`
+    const data = await apiRequest(url)
+    return data?.zone_stats || {}
+  } catch (error) {
+    console.error('获取分区统计失败:', error)
+    return {}
+  }
+}
+
+/**
  * 批量更新指定日期所有视频的详细信息
  * @param {string} date 日期 (YYYY-MM-DD格式)
  * @param {Function} onProgress 进度回调函数

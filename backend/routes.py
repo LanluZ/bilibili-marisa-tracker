@@ -296,6 +296,18 @@ async def get_video_detail(bvid: Optional[str] = None, aid: Optional[str] = None
         raise HTTPException(status_code=500, detail=f"获取视频详情失败: {str(e)}")
 
 
+@api_router.get("/zone/stats")
+async def get_zone_stats(date: Optional[str] = None):
+    """获取分区统计信息"""
+    try:
+        # 获取分区统计数据
+        zone_stats = db_manager.get_zone_statistics(date)
+        return {"zone_stats": zone_stats}
+    except Exception as e:
+        print(f"获取分区统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取分区统计失败: {str(e)}")
+
+
 # 健康检查端点
 @api_router.get("/health")
 async def health_check():

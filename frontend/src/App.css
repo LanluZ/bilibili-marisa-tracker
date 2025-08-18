@@ -214,7 +214,7 @@ body {
   padding: 25px;
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
   display: flex;
-  gap: 25px;
+  gap: 0; /* 移除全局gap */
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
@@ -238,6 +238,12 @@ body {
   min-width: 180px;
   position: relative;
   z-index: 1; /* 确保control-group有正确的层级 */
+  margin-right: 25px; /* 为每个控件组添加右边距 */
+}
+
+/* 最后一个control-group不需要右边距 */
+.control-group:last-child {
+  margin-right: 0;
 }
 
 .control-group label {
@@ -251,6 +257,76 @@ body {
 
 .control-group:hover label {
   color: #ff6b9d;
+}
+
+/* 子分区动画样式 - 修复空隙问题 */
+.sub-zone-group {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+  width: 0;
+  min-width: 0;
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-15px) scale(0.98);
+  margin: 0;
+  padding: 0;
+}
+
+.sub-zone-group.hide {
+  width: 0;
+  min-width: 0;
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-15px) scale(0.98);
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sub-zone-group.show {
+  width: 180px;
+  min-width: 180px;
+  max-width: 220px;
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-right: 25px;
+  padding: 0;
+}
+
+/* 子分区标签和选择框 - 流畅的延迟动画 */
+.sub-zone-group label {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition-delay: 0.1s;
+}
+
+.sub-zone-group .custom-select {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition-delay: 0.15s;
+}
+
+.sub-zone-group.hide label {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition-delay: 0s;
+}
+
+.sub-zone-group.hide .custom-select {
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+  transition-delay: 0s;
+}
+
+.sub-zone-group.show label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sub-zone-group.show .custom-select {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 /* 自定义选择框容器 */

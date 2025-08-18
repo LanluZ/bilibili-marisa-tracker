@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getDates, getVideos, getCrawlStatus, startCrawl } from '../services/api.js'
+import { getDates, getVideos, getCrawlStatus, startCrawl, getZoneStats } from '../services/api.js'
 
 /**
  * 管理可用日期的Hook
@@ -167,5 +167,38 @@ export const usePagination = (totalItems, itemsPerPage = 15) => {
     goToLastPage,
     goToPrevPage,
     goToNextPage
+  }
+}
+
+/**
+ * 管理分区统计数据的Hook
+ */
+export const useZoneStats = (selectedDate) => {
+  const [zoneStats, setZoneStats] = useState({})
+  const [loading, setLoading] = useState(false)
+
+  const fetchZoneStats = async () => {
+    setLoading(true)
+    try {
+      const stats = await getZoneStats(selectedDate)
+      setZoneStats(stats)
+    } catch (error) {
+      console.error('获取分区统计失败:', error)
+      setZoneStats({})
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchZoneStats()
+    }
+  }, [selectedDate])
+
+  return {
+    zoneStats,
+    loading,
+    refetch: fetchZoneStats
   }
 }

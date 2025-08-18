@@ -13,7 +13,7 @@ import {
 } from './components/index.js'
 
 // 导入自定义Hooks
-import { useDates, useVideos, useCrawlStatus, usePagination } from './hooks/useData.js'
+import { useDates, useVideos, useCrawlStatus, usePagination, useZoneStats } from './hooks/useData.js'
 import { useSidebar } from './hooks/useSidebar.js'
 import { useVideoDetail } from './hooks/useVideoDetail.js'
 
@@ -51,6 +51,7 @@ function App() {
   const { dates, selectedDate, setSelectedDate } = useDates()
   const { crawlStatus, startCrawl } = useCrawlStatus()
   const { sidebarOpen, toggleSidebar } = useSidebar()
+  const { zoneStats } = useZoneStats(selectedDate)
   
   // 临时状态用于分页
   const [currentPage, setCurrentPage] = useState(1)
@@ -130,6 +131,7 @@ function App() {
           onSortOrderChange={(order) => handleFiltersChange(undefined, order, undefined, undefined)}
           zoneFilter={zoneFilter}
           onZoneFilterChange={handleZoneFilterChange}
+          zoneStats={zoneStats}
         />
 
         <Pagination
