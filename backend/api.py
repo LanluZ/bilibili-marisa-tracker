@@ -176,6 +176,34 @@ class BilibiliSpider:
             options.add_experimental_option("prefs", prefs)
             options.add_argument("--blink-settings=imagesEnabled=false")
 
+        # 禁用音频相关功能
+        options.add_argument("--mute-audio")  # 静音所有音频
+        options.add_argument("--no-audio")    # 完全禁用音频系统
+        options.add_argument("--disable-audio-output")  # 禁用音频输出
+        options.add_argument("--disable-background-media-suspend")  # 禁用后台媒体暂停
+        options.add_argument("--autoplay-policy=no-user-gesture-required")  # 阻止自动播放
+        
+        # 添加媒体相关的preference设置
+        media_prefs = {
+            "profile.default_content_setting_values.media_stream": 2,
+            "profile.default_content_setting_values.autoplay": 2,
+            "profile.managed_default_content_settings.media_stream": 2,
+            "profile.managed_default_content_settings.autoplay": 2,
+        }
+        
+        # 合并现有的prefs设置
+        if self.block_images:
+            existing_prefs = {
+                "profile.managed_default_content_settings.images": 2,
+                "profile.default_content_setting_values.images": 2,
+                "profile.default_content_setting_values.media_stream": 2,
+                "profile.default_content_setting_values.autoplay": 2,
+            }
+            existing_prefs.update(media_prefs)
+            options.add_experimental_option("prefs", existing_prefs)
+        else:
+            options.add_experimental_option("prefs", media_prefs)
+
         # 使用 webdriver-manager 自动管理 ChromeDriver
         try:
             service = Service(ChromeDriverManager().install())
