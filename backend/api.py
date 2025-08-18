@@ -269,6 +269,63 @@ class BilibiliSpider:
 
         return results
 
+    def get_video_detail(self, bvid: str) -> Optional[Dict]:
+        """
+        获取视频详细信息，包括tid_v2、copyright等字段
+        仅在获取热门视频时对新视频调用一次
+        
+        Args:
+            bvid: 视频的BV号
+            
+        Returns:
+            包含视频详细信息的字典，主要字段：
+            - tid_v2: 分区tid (v2)
+            - copyright: 视频类型 (1:原创, 2:转载)
+            - owner: UP主信息
+            - stat: 统计信息
+            - desc: 视频简介
+            等其他详细信息
+        """
+        try:
+            api_url = f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
+            data = self._fetch_json(api_url)
+            
+            if data.get("code") != 0:
+                print(f"获取视频详情失败: code={data.get('code')}, message={data.get('message')}")
+                return None
+                
+            video_data = data.get("data")
+            if not video_data:
+                print(f"视频数据为空: {bvid}")
+                return None
+                
+            # 提取关键信息
+            result = {
+                "bvid": video_data.get("bvid"),
+                "aid": video_data.get("aid"),
+                "title": video_data.get("title"),
+                "desc": video_data.get("desc"),
+                "pic": video_data.get("pic"),
+                "duration": video_data.get("duration"),
+                "pubdate": video_data.get("pubdate"),
+                "ctime": video_data.get("ctime"),
+                "tid": video_data.get("tid"),
+                "tid_v2": video_data.get("tid_v2"),  # 分区tid (v2)
+                "tname": video_data.get("tname"),
+                "tname_v2": video_data.get("tname_v2"),
+                "copyright": video_data.get("copyright"),  # 视频类型 (1:原创, 2:转载)
+                "videos": video_data.get("videos"),  # 分P数
+                "owner": video_data.get("owner"),  # UP主信息
+                "stat": video_data.get("stat"),   # 统计信息
+                "pages": video_data.get("pages"), # 分P信息
+            }
+            
+            return result
+            
+        except Exception as e:
+            print(f"获取视频详情异常 {bvid}: {e}")
+            return None
+
     def close(self):
         if self._driver is not None:
             try:

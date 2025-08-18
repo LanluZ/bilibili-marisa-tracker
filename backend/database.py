@@ -44,6 +44,8 @@ class DatabaseManager:
                         crawl_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         max_online_count INTEGER DEFAULT 0,
                         max_online_time TIMESTAMP,
+                        tid_v2 INTEGER,
+                        copyright INTEGER,
                         UNIQUE(bvid, crawl_date) ON CONFLICT REPLACE
                     )
                 ''')
@@ -55,7 +57,9 @@ class DatabaseManager:
                 # 需要的字段列表
                 required_columns = {
                     'max_online_count': 'INTEGER DEFAULT 0',
-                    'max_online_time': 'TIMESTAMP'
+                    'max_online_time': 'TIMESTAMP',
+                    'tid_v2': 'INTEGER',  # 新增分区tid_v2字段
+                    'copyright': 'INTEGER'  # 新增视频类型字段 (1:原创, 2:转载)
                 }
                 
                 # 添加缺失的字段
@@ -106,8 +110,8 @@ class DatabaseManager:
         # 插入或更新视频记录
         cursor.execute('''
             INSERT OR REPLACE INTO videos 
-            (bvid, aid, cid, title, pic, view_count, online_count, max_online_count, max_online_time, crawl_date, crawl_time)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (bvid, aid, cid, title, pic, view_count, online_count, max_online_count, max_online_time, tid_v2, copyright, crawl_date, crawl_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             video.get('bvid'),
             video.get('aid'),
@@ -118,6 +122,8 @@ class DatabaseManager:
             video.get('online_count'),  # 保持原始字符串格式用于显示
             max_online_count,           # 存储数字格式用于比较
             max_online_time,
+            video.get('tid_v2'),        # 分区tid_v2
+            video.get('copyright'),     # 视频类型
             crawl_date,
             current_time
         ))
@@ -147,6 +153,13 @@ class DatabaseManager:
         else:
             # 首次记录
             return current_online, current_time
+    
+    def video_exists(self, bvid: str) -> bool:
+        """检查视频是否已存在于数据库中"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT 1 FROM videos WHERE bvid = ? LIMIT 1', (bvid,))
+            return cursor.fetchone() is not None
     
     def update_video_online_count(self, bvid: str, online_count: str, crawl_date: str):
         """更新单个视频的在线观看人数"""

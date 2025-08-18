@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import date
 
 try:
     from fastapi import APIRouter, HTTPException, BackgroundTasks
@@ -36,9 +37,11 @@ except ImportError as e:
 try:
     from .database import db_manager
     from .scheduler import task_scheduler, CrawlConfig
+    from .api import BilibiliSpider
 except ImportError:
     from database import db_manager
     from scheduler import task_scheduler, CrawlConfig
+    from api import BilibiliSpider
 
 
 # 创建API路由器
@@ -115,6 +118,77 @@ async def get_crawl_status():
         return task_scheduler.get_status()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取状态失败: {str(e)}")
+
+
+@api_router.post("/video/update")
+async def update_video_info(bvid: str):
+    """
+    更新数据库中指定视频的详细信息
+    """
+    try:
+        # 检查视频是否存在于数据库中
+        if not db_manager.video_exists(bvid):
+            raise HTTPException(
+                status_code=404, 
+                detail=f"数据库中不存在视频 {bvid}，请先通过热门视频爬取添加该视频"
+            )
+        
+        # 使用爬虫获取最新的视频详情
+        with BilibiliSpider(headless=True) as spider:
+            detail = spider.get_video_detail(bvid)
+            
+            if not detail:
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"无法获取视频 {bvid} 的详细信息，可能是网络问题或视频已被删除"
+                )
+            
+            # 构建更新数据
+            from datetime import date
+            today = date.today().isoformat()
+            
+            # 获取统计信息
+            stat = detail.get('stat', {})
+            
+            video_data = {
+                'bvid': detail.get('bvid'),
+                'aid': detail.get('aid'),
+                'cid': detail.get('cid', 0),
+                'title': detail.get('title'),
+                'pic': detail.get('pic'),
+                'view': stat.get('view', 0),
+                'online_count': '0',  # 在线人数保持为0，这个由专门的任务更新
+                'tid_v2': detail.get('tid_v2'),
+                'copyright': detail.get('copyright'),
+            }
+            
+            # 更新数据库
+            db_manager.save_videos([video_data], today)
+            
+            return {
+                "message": f"视频 {bvid} 信息更新成功",
+                "video_info": {
+                    "bvid": detail.get('bvid'),
+                    "title": detail.get('title'),
+                    "tid_v2": detail.get('tid_v2'),
+                    "copyright": detail.get('copyright'),
+                    "view_count": stat.get('view', 0),
+                    "like_count": stat.get('like', 0),
+                    "coin_count": stat.get('coin', 0),
+                    "favorite_count": stat.get('favorite', 0),
+                    "updated_at": today
+                }
+            }
+            
+    except HTTPException:
+        # 重新抛出HTTP异常
+        raise
+    except Exception as e:
+        print(f"更新视频 {bvid} 信息时出错: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"更新视频信息失败: {str(e)}")
+
 
 
 @api_router.get("/crawl/config")

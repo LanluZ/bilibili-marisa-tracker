@@ -57,6 +57,34 @@ class CrawlerService:
                 # 验证和清理数据
                 valid_videos = self._validate_and_clean_videos(videos)
                 
+                # 为新视频获取详细信息（包含tid_v2和copyright）
+                for i, video in enumerate(valid_videos):
+                    bvid = video.get('bvid')
+                    if bvid and not db_manager.video_exists(bvid):
+                        print(f"正在获取新视频 {bvid} 的详细信息... ({i+1}/{len(valid_videos)})")
+                        sys.stdout.flush()
+                        
+                        detail = spider.get_video_detail(bvid)
+                        if detail:
+                            # 更新视频信息，添加详细数据
+                            video.update({
+                                'tid_v2': detail.get('tid_v2'),
+                                'copyright': detail.get('copyright'),
+                                # 保留其他可能有用的信息
+                                'desc': detail.get('desc'),
+                                'duration': detail.get('duration'),
+                                'pubdate': detail.get('pubdate'),
+                                'ctime': detail.get('ctime'),
+                            })
+                            print(f"成功获取视频 {bvid} 详细信息: tid_v2={detail.get('tid_v2')}, copyright={detail.get('copyright')}")
+                        else:
+                            print(f"获取视频 {bvid} 详细信息失败")
+                        
+                        # 避免请求过快
+                        time.sleep(0.5)
+                    elif bvid:
+                        print(f"视频 {bvid} 已存在，跳过详细信息获取")
+                
                 # 只添加基础信息，在线人数设为0
                 for video in valid_videos:
                     video['online_count'] = "0"
