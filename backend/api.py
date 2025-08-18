@@ -1,6 +1,9 @@
 import json
 import time
 from typing import List, Dict, Optional
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -8,6 +11,121 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+
+
+class FastBilibiliAPI:
+    """
+    快速的B站API客户端，使用纯HTTP请求，无需浏览器
+    专门用于获取视频详细信息
+    """
+    def __init__(self):
+        self.session = requests.Session()
+        
+        # 设置重试策略
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
+        
+        # 设置请求头，模拟浏览器
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Referer': 'https://www.bilibili.com/',
+            'Origin': 'https://www.bilibili.com',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-site',
+        })
+        
+        # 设置超时
+        self.timeout = 10
+
+    def get_video_detail(self, bvid: str) -> Optional[Dict]:
+        """
+        快速获取视频详细信息，包括tid_v2、copyright等字段
+        
+        Args:
+            bvid: 视频的BV号
+            
+        Returns:
+            包含视频详细信息的字典
+        """
+        try:
+            api_url = f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
+            
+            # 直接使用requests请求API
+            response = self.session.get(api_url, timeout=self.timeout)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if data.get("code") != 0:
+                print(f"获取视频详情失败: code={data.get('code')}, message={data.get('message')}")
+                return None
+                
+            video_data = data.get("data")
+            if not video_data:
+                print(f"视频数据为空: {bvid}")
+                return None
+                
+            # 提取关键信息
+            result = {
+                "bvid": video_data.get("bvid"),
+                "aid": video_data.get("aid"),
+                "title": video_data.get("title"),
+                "desc": video_data.get("desc"),
+                "pic": video_data.get("pic"),
+                "duration": video_data.get("duration"),
+                "pubdate": video_data.get("pubdate"),
+                "ctime": video_data.get("ctime"),
+                "tid": video_data.get("tid"),
+                "tid_v2": video_data.get("tid_v2"),  # 分区tid (v2)
+                "tname": video_data.get("tname"),
+                "tname_v2": video_data.get("tname_v2"),
+                "copyright": video_data.get("copyright"),  # 视频类型 (1:原创, 2:转载)
+                "videos": video_data.get("videos"),  # 分P数
+                "owner": video_data.get("owner"),  # UP主信息
+                "stat": video_data.get("stat"),   # 统计信息
+                "pages": video_data.get("pages"), # 分P信息
+            }
+            
+            return result
+            
+        except requests.exceptions.RequestException as e:
+            print(f"网络请求异常 {bvid}: {e}")
+            return None
+        except json.JSONDecodeError as e:
+            print(f"JSON解析异常 {bvid}: {e}")
+            return None
+        except Exception as e:
+            print(f"获取视频详情异常 {bvid}: {e}")
+            return None
+
+    def close(self):
+        """关闭会话"""
+        if hasattr(self, 'session'):
+            self.session.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
 
 class BilibiliSpider:
@@ -271,8 +389,8 @@ class BilibiliSpider:
 
     def get_video_detail(self, bvid: str) -> Optional[Dict]:
         """
-        获取视频详细信息，包括tid_v2、copyright等字段
-        仅在获取热门视频时对新视频调用一次
+        获取视频详细信息，使用FastBilibiliAPI获取
+        包括tid_v2、copyright等字段
         
         Args:
             bvid: 视频的BV号
@@ -286,45 +404,9 @@ class BilibiliSpider:
             - desc: 视频简介
             等其他详细信息
         """
-        try:
-            api_url = f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
-            data = self._fetch_json(api_url)
-            
-            if data.get("code") != 0:
-                print(f"获取视频详情失败: code={data.get('code')}, message={data.get('message')}")
-                return None
-                
-            video_data = data.get("data")
-            if not video_data:
-                print(f"视频数据为空: {bvid}")
-                return None
-                
-            # 提取关键信息
-            result = {
-                "bvid": video_data.get("bvid"),
-                "aid": video_data.get("aid"),
-                "title": video_data.get("title"),
-                "desc": video_data.get("desc"),
-                "pic": video_data.get("pic"),
-                "duration": video_data.get("duration"),
-                "pubdate": video_data.get("pubdate"),
-                "ctime": video_data.get("ctime"),
-                "tid": video_data.get("tid"),
-                "tid_v2": video_data.get("tid_v2"),  # 分区tid (v2)
-                "tname": video_data.get("tname"),
-                "tname_v2": video_data.get("tname_v2"),
-                "copyright": video_data.get("copyright"),  # 视频类型 (1:原创, 2:转载)
-                "videos": video_data.get("videos"),  # 分P数
-                "owner": video_data.get("owner"),  # UP主信息
-                "stat": video_data.get("stat"),   # 统计信息
-                "pages": video_data.get("pages"), # 分P信息
-            }
-            
-            return result
-            
-        except Exception as e:
-            print(f"获取视频详情异常 {bvid}: {e}")
-            return None
+        # 使用FastBilibiliAPI获取视频详细信息
+        with FastBilibiliAPI() as fast_api:
+            return fast_api.get_video_detail(bvid)
 
     def close(self):
         if self._driver is not None:

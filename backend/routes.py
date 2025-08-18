@@ -37,11 +37,11 @@ except ImportError as e:
 try:
     from .database import db_manager
     from .scheduler import task_scheduler, CrawlConfig
-    from .fast_api import FastBilibiliAPI
+    from .api import FastBilibiliAPI
 except ImportError:
     from database import db_manager
     from scheduler import task_scheduler, CrawlConfig
-    from fast_api import FastBilibiliAPI
+    from api import FastBilibiliAPI
 
 
 # 创建API路由器

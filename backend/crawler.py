@@ -7,10 +7,8 @@ from typing import List, Dict
 # 兼容不同的执行方式
 try:
     from api import BilibiliSpider  # 当在 backend 目录下运行时
-    from fast_api import FastBilibiliAPI
 except ImportError:
     from backend.api import BilibiliSpider  # 当在项目根目录运行时
-    from backend.fast_api import FastBilibiliAPI
 
 try:
     from .database import db_manager
@@ -47,12 +45,12 @@ class CrawlerService:
             print("正在初始化爬虫...")
             sys.stdout.flush()  # 强制刷新输出
             
-            with FastBilibiliAPI() as fast_api:
-                print("快速API初始化成功，开始获取热门视频列表")
+            with BilibiliSpider() as spider:
+                print("爬虫初始化成功，开始获取热门视频列表")
                 sys.stdout.flush()
                 
                 # 获取热门视频列表
-                videos = fast_api.get_hot_videos(max_videos=max_videos)
+                videos = spider.get_hot_videos(max_videos=max_videos)
                 print(f"获取到 {len(videos)} 个热门视频")
                 sys.stdout.flush()
                 
@@ -66,7 +64,7 @@ class CrawlerService:
                         print(f"正在获取新视频 {bvid} 的详细信息... ({i+1}/{len(valid_videos)})")
                         sys.stdout.flush()
                         
-                        detail = fast_api.get_video_detail(bvid)
+                        detail = spider.get_video_detail(bvid)
                         if detail:
                             # 更新视频信息，添加详细数据
                             video.update({
@@ -134,8 +132,8 @@ class CrawlerService:
             print(f"找到 {len(videos_to_update)} 个视频需要更新在线人数")
             sys.stdout.flush()
             
-            with FastBilibiliAPI() as fast_api:
-                print("快速API初始化成功，开始更新在线人数")
+            with BilibiliSpider() as spider:
+                print("爬虫初始化成功，开始更新在线人数")
                 sys.stdout.flush()
                 
                 success_count = 0
@@ -148,7 +146,7 @@ class CrawlerService:
                         print(f"正在更新视频 {bvid} 的在线人数...")
                         sys.stdout.flush()
                         
-                        online_count = fast_api.get_online_total(bvid, cid if cid else -1)
+                        online_count = spider.get_online_total(bvid, cid if cid else -1)
                         
                         # 更新数据库中的在线人数
                         db_manager.update_video_online_count(bvid, str(online_count), today)
