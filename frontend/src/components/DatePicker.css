@@ -30,6 +30,21 @@
   transform: translateY(-2px);
 }
 
+.date-picker-trigger.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(241, 243, 244, 0.5);
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.date-picker-trigger.disabled:hover {
+  border-color: rgba(255, 107, 157, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: none !important;
+  background: rgba(241, 243, 244, 0.5);
+}
+
 .date-display {
   display: flex;
   align-items: center;

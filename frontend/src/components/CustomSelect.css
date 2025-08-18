@@ -47,6 +47,25 @@
   transform: translateY(-2px);
 }
 
+/* 禁用状态样式 */
+.custom-select.disabled .select-trigger {
+  background: rgba(245, 245, 245, 0.95);
+  border-color: rgba(200, 200, 200, 0.5);
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.custom-select.disabled .select-trigger:hover {
+  border-color: rgba(200, 200, 200, 0.5);
+  box-shadow: none;
+  transform: none;
+}
+
+.custom-select.disabled .select-trigger::before {
+  display: none;
+}
+
 .select-display {
   display: flex;
   align-items: center;

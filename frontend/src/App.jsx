@@ -36,6 +36,15 @@ function App() {
   // 排序状态
   const [sortBy, setSortBy] = useState('view_count')
   const [sortOrder, setSortOrder] = useState('desc')
+  
+  // 分区筛选状态
+  const [zoneFilter, setZoneFilter] = useState({
+    mainZone: '',
+    subZone: '',
+    mainZoneName: '',
+    subZoneName: ''
+  })
+  
   const videosPerPage = 15 // 每页15个视频
 
   // 使用自定义Hooks
@@ -51,7 +60,9 @@ function App() {
     sortBy, 
     sortOrder, 
     currentPage, 
-    videosPerPage
+    videosPerPage,
+    zoneFilter.mainZone,
+    zoneFilter.subZone
   )
   
   // 计算总页数
@@ -61,11 +72,17 @@ function App() {
   const { videoDetail, loading: detailLoading, error: detailError, fetchVideoDetail, clearVideoDetail } = useVideoDetail()
 
   // 当筛选条件改变时重置到第一页
-  const handleFiltersChange = (newSortBy, newSortOrder, newSelectedDate) => {
+  const handleFiltersChange = (newSortBy, newSortOrder, newSelectedDate, newZoneFilter) => {
     if (newSortBy !== undefined) setSortBy(newSortBy)
     if (newSortOrder !== undefined) setSortOrder(newSortOrder)
     if (newSelectedDate !== undefined) setSelectedDate(newSelectedDate)
+    if (newZoneFilter !== undefined) setZoneFilter(newZoneFilter)
     setCurrentPage(1)
+  }
+
+  // 处理分区筛选变化
+  const handleZoneFilterChange = (filter) => {
+    handleFiltersChange(undefined, undefined, undefined, filter)
   }
 
   // 处理显示视频详情
@@ -106,11 +123,13 @@ function App() {
         <Controls
           dates={dates}
           selectedDate={selectedDate}
-          onDateChange={(date) => handleFiltersChange(undefined, undefined, date)}
+          onDateChange={(date) => handleFiltersChange(undefined, undefined, date, undefined)}
           sortBy={sortBy}
-          onSortByChange={(sort) => handleFiltersChange(sort, undefined, undefined)}
+          onSortByChange={(sort) => handleFiltersChange(sort, undefined, undefined, undefined)}
           sortOrder={sortOrder}
-          onSortOrderChange={(order) => handleFiltersChange(undefined, order, undefined)}
+          onSortOrderChange={(order) => handleFiltersChange(undefined, order, undefined, undefined)}
+          zoneFilter={zoneFilter}
+          onZoneFilterChange={handleZoneFilterChange}
         />
 
         <Pagination

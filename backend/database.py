@@ -161,6 +161,14 @@ class DatabaseManager:
             cursor.execute('SELECT 1 FROM videos WHERE bvid = ? LIMIT 1', (bvid,))
             return cursor.fetchone() is not None
     
+    def video_has_tid_v2(self, bvid: str) -> bool:
+        """检查视频是否已经有tid_v2数据"""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT tid_v2 FROM videos WHERE bvid = ? LIMIT 1', (bvid,))
+            result = cursor.fetchone()
+            return result is not None and result[0] is not None
+    
     def update_video_online_count(self, bvid: str, online_count: str, crawl_date: str):
         """更新单个视频的在线观看人数"""
         try:
@@ -196,8 +204,10 @@ class DatabaseManager:
     
     def get_videos_by_date(self, date: Optional[str] = None, 
                           sort_by: str = "view_count", 
-                          order: str = "desc") -> List[Dict]:
-        """根据日期获取视频列表"""
+                          order: str = "desc",
+                          main_zone: Optional[str] = None,
+                          sub_zone: Optional[str] = None) -> List[Dict]:
+        """根据日期获取视频列表，支持分区筛选"""
         with self.get_connection() as conn:
             cursor = conn.cursor()
             
@@ -206,17 +216,41 @@ class DatabaseManager:
             columns_info = cursor.fetchall()
             columns = [col[1] for col in columns_info]  # 获取字段名列表
             
-            # 构建查询语句
+            # 构建查询语句和参数
+            params = []
+            where_clauses = []
+            
+            # 日期筛选
             if date:
-                query = "SELECT * FROM videos WHERE crawl_date = ?"
-                params = (date,)
+                where_clauses.append("crawl_date = ?")
+                params.append(date)
             else:
                 # 获取最新日期的数据
-                query = '''
-                    SELECT * FROM videos 
-                    WHERE crawl_date = (SELECT MAX(crawl_date) FROM videos)
-                '''
-                params = ()
+                where_clauses.append("crawl_date = (SELECT MAX(crawl_date) FROM videos)")
+            
+            # 分区筛选
+            if sub_zone:
+                # 如果指定了子分区，直接筛选子分区
+                where_clauses.append("tid_v2 = ?")
+                params.append(int(sub_zone))
+            elif main_zone:
+                # 如果只指定了主分区，需要获取该主分区下的所有子分区ID
+                sub_zone_ids = self._get_sub_zone_ids(main_zone)
+                if sub_zone_ids:
+                    placeholders = ','.join(['?'] * len(sub_zone_ids))
+                    where_clauses.append(f"tid_v2 IN ({placeholders})")
+                    params.extend(sub_zone_ids)
+                else:
+                    # 如果主分区没有子分区，直接筛选主分区ID
+                    where_clauses.append("tid_v2 = ?")
+                    params.append(int(main_zone))
+            
+            # 构建完整的查询语句
+            base_query = "SELECT * FROM videos"
+            if where_clauses:
+                query = f"{base_query} WHERE {' AND '.join(where_clauses)}"
+            else:
+                query = base_query
             
             # 添加排序
             query += self._build_order_clause(sort_by, order)
@@ -226,6 +260,46 @@ class DatabaseManager:
             
             # 转换为字典列表 - 使用动态获取的字段顺序
             return [dict(zip(columns, row)) for row in rows]
+    
+    def _get_sub_zone_ids(self, main_zone_id: str) -> List[int]:
+        """获取指定主分区下的所有子分区ID"""
+        # B站分区映射 - 这里使用硬编码的映射关系
+        # 在实际应用中，可以从JSON文件或配置中读取
+        zone_mapping = {
+            "1005": [2037, 2038, 2039, 2040, 2041, 2042, 2043, 2044, 2045, 2046, 2047, 2048, 2049, 2050, 2051, 2052, 2053, 2054],  # 动画
+            "1008": [2064, 2065, 2066, 2067, 2068, 2069, 2070, 2071, 2072, 2073, 2074, 2075, 2076, 2077, 2078, 2079],  # 游戏
+            "1007": [2059, 2060, 2061, 2062, 2063],  # 鬼畜
+            "1003": [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027],  # 音乐
+            "1004": [2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035, 2036],  # 舞蹈
+            "1001": [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008],  # 影视
+            "1002": [2009, 2010, 2011, 2012, 2013, 2014, 2015],  # 娱乐
+            "1010": [2084, 2085, 2086, 2087, 2088, 2089, 2090, 2091, 2092, 2093, 2094, 2095],  # 知识
+            "1012": [2099, 2100, 2101, 2102, 2103, 2104, 2105],  # 科技数码
+            "1009": [2080, 2081, 2082, 2083],  # 资讯
+            "1020": [2149, 2150, 2151, 2152, 2153],  # 美食
+            "1021": [2154, 2155, 2156, 2157],  # 小剧场
+            "1013": [2106, 2107, 2108, 2109, 2110],  # 汽车
+            "1014": [2111, 2112, 2113, 2114, 2115, 2116, 2117, 2118, 2119],  # 时尚美妆
+            "1018": [2133, 2134, 2135, 2136, 2137, 2138, 2139, 2140, 2141, 2142],  # 体育运动
+            "1024": [2167, 2168, 2169, 2170, 2171],  # 动物
+            "1029": [2194, 2195, 2196, 2197],  # vlog
+            "1006": [2055, 2056, 2057, 2058],  # 绘画
+            "1011": [2096, 2097, 2098],  # 人工智能
+            "1015": [2120, 2121, 2122, 2123],  # 家装房产
+            "1016": [2124, 2125, 2126, 2127],  # 户外潮流
+            "1017": [2128, 2129, 2130, 2131, 2132],  # 健身
+            "1019": [2143, 2144, 2145, 2146, 2147, 2148],  # 手工
+            "1022": [2158, 2159, 2160, 2161],  # 旅游出行
+            "1023": [2162, 2163, 2164, 2165, 2166],  # 三农
+            "1025": [2172, 2173, 2174, 2175, 2176, 2177, 2178],  # 亲子
+            "1026": [2179, 2180, 2181, 2182, 2183, 2184],  # 健康
+            "1027": [2185, 2186, 2187, 2188],  # 情感
+            "1030": [2198, 2199, 2200, 2201, 2202],  # 生活兴趣
+            "1031": [2203, 2204, 2205],  # 生活经验
+            "1028": [2189, 2190, 2191, 2192, 2193],  # 神秘学
+        }
+        
+        return zone_mapping.get(main_zone_id, [])
     
     def _build_order_clause(self, sort_by: str, order: str) -> str:
         """构建排序子句"""

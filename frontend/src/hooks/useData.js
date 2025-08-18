@@ -35,7 +35,7 @@ export const useDates = () => {
 /**
  * 管理视频数据的Hook
  */
-export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPerPage = 15) => {
+export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPerPage = 15, mainZone = '', subZone = '') => {
   const [videos, setVideos] = useState([])
   const [totalVideos, setTotalVideos] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -49,7 +49,9 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
       const allVideos = await getVideos({
         date: selectedDate,
         sortBy,
-        order: sortOrder
+        order: sortOrder,
+        mainZone,
+        subZone
       })
       
       // 设置总视频数
@@ -79,7 +81,7 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
     if (selectedDate) {
       fetchVideos()
     }
-  }, [selectedDate, sortBy, sortOrder, currentPage])
+  }, [selectedDate, sortBy, sortOrder, currentPage, mainZone, subZone])
 
   return {
     videos,

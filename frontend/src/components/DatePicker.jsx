@@ -4,7 +4,7 @@ import './DatePicker.css'
 /**
  * 自定义日期选择器组件
  */
-const DatePicker = ({ dates, selectedDate, onDateChange }) => {
+const DatePicker = ({ dates, selectedDate, onDateChange, disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const dropdownRef = useRef(null)
@@ -28,10 +28,35 @@ const DatePicker = ({ dates, selectedDate, onDateChange }) => {
     }
   }, [])
 
+  // 为父容器添加/移除活跃状态类名
+  useEffect(() => {
+    const container = dropdownRef.current?.closest('.batch-update-section')
+    if (container) {
+      if (isOpen) {
+        container.classList.add('dropdown-active')
+      } else {
+        container.classList.remove('dropdown-active')
+      }
+    }
+    
+    // 清理函数
+    return () => {
+      if (container) {
+        container.classList.remove('dropdown-active')
+      }
+    }
+  }, [isOpen])
+
   const handleDateSelect = (date) => {
+    if (disabled) return
     onDateChange(date)
     setIsOpen(false)
     setSearchTerm('')
+  }
+
+  const handleToggle = () => {
+    if (disabled) return
+    setIsOpen(!isOpen)
   }
 
   const formatDisplayDate = (date) => {
@@ -47,8 +72,8 @@ const DatePicker = ({ dates, selectedDate, onDateChange }) => {
   return (
     <div className="date-picker" ref={dropdownRef}>
       <div 
-        className={`date-picker-trigger ${isOpen ? 'open' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        className={`date-picker-trigger ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''}`}
+        onClick={handleToggle}
       >
         <div className="date-display">
           <span className="date-icon"></span>
@@ -57,7 +82,7 @@ const DatePicker = ({ dates, selectedDate, onDateChange }) => {
         <span className={`dropdown-arrow ${isOpen ? 'rotated' : ''}`}>▼</span>
       </div>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <>
           {/* 背景遮罩层 */}
           <div className="dropdown-backdrop" onClick={() => setIsOpen(false)} />

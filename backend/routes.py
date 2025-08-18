@@ -37,11 +37,11 @@ except ImportError as e:
 try:
     from .database import db_manager
     from .scheduler import task_scheduler, CrawlConfig
-    from .api import BilibiliSpider
+    from .fast_api import FastBilibiliAPI
 except ImportError:
     from database import db_manager
     from scheduler import task_scheduler, CrawlConfig
-    from api import BilibiliSpider
+    from fast_api import FastBilibiliAPI
 
 
 # 创建API路由器
@@ -58,7 +58,9 @@ async def root():
 async def get_videos(
     date: Optional[str] = None,
     sort_by: str = "view_count",  # title, online_count, view_count, max_online_count
-    order: str = "desc"  # desc, asc
+    order: str = "desc",  # desc, asc
+    main_zone: Optional[str] = None,  # 主分区筛选
+    sub_zone: Optional[str] = None   # 子分区筛选
 ):
     """
     获取视频数据
@@ -67,9 +69,11 @@ async def get_videos(
         date: 指定日期，格式为YYYY-MM-DD，不指定则返回最新数据
         sort_by: 排序字段
         order: 排序方向
+        main_zone: 主分区ID，用于筛选特定主分区的视频
+        sub_zone: 子分区ID，用于筛选特定子分区的视频
     """
     try:
-        videos = db_manager.get_videos_by_date(date, sort_by, order)
+        videos = db_manager.get_videos_by_date(date, sort_by, order, main_zone, sub_zone)
         return {"videos": videos, "total": len(videos)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取视频数据失败: {str(e)}")
@@ -133,9 +137,17 @@ async def update_video_info(bvid: str):
                 detail=f"数据库中不存在视频 {bvid}，请先通过热门视频爬取添加该视频"
             )
         
-        # 使用爬虫获取最新的视频详情
-        with BilibiliSpider(headless=True) as spider:
-            detail = spider.get_video_detail(bvid)
+        # 检查是否已经有tid_v2数据，如果有则跳过爬取
+        if db_manager.video_has_tid_v2(bvid):
+            return {
+                "message": f"视频 {bvid} 已存在详细分区信息，跳过更新",
+                "skipped": True,
+                "reason": "已有tid_v2数据"
+            }
+        
+        # 使用快速API获取视频详情（不需要浏览器）
+        with FastBilibiliAPI() as fast_api:
+            detail = fast_api.get_video_detail(bvid)
             
             if not detail:
                 raise HTTPException(

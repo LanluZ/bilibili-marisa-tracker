@@ -1207,6 +1207,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: visible; /* 允许水平溢出，确保下拉框可以显示 */
   opacity: 0;
   visibility: hidden;
   transform: translateX(100%);
@@ -1308,6 +1309,19 @@ body {
   padding: 20px;
   border: 1px solid rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
+  position: relative; /* 确保正确的定位上下文 */
+  overflow: visible; /* 允许下拉框溢出显示 */
+  z-index: 1; /* 基础层级 */
+}
+
+/* 包含DatePicker的section需要更高的层级 */
+.sidebar-section.batch-update-section {
+  z-index: 1000; /* 确保DatePicker下拉框不被后续section遮挡 */
+}
+
+/* 当DatePicker下拉框打开时，进一步提升层级 */
+.sidebar-section.batch-update-section.dropdown-active {
+  z-index: 10000; /* 当下拉框活跃时使用最高层级 */
 }
 
 .sidebar-section:hover {
@@ -1480,6 +1494,458 @@ body {
 
 .sidebar-crawl-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+/* 侧边栏批量更新样式 */
+.batch-update-control {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 107, 157, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative; /* 确保正确的定位上下文 */
+  overflow: visible; /* 允许下拉框溢出显示 */
+}
+
+.date-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-selector-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #155724;
+  margin-bottom: 5px;
+}
+
+/* 侧边栏中的DatePicker样式调整 */
+.batch-update-control .date-picker {
+  position: relative;
+  width: 100%;
+  min-width: unset; /* 移除最小宽度限制 */
+  z-index: 1; /* 确保选择器容器有适当的层级 */
+}
+
+.batch-update-control .date-picker-trigger {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 107, 157, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.1);
+  font-size: 0.9rem;
+}
+
+.batch-update-control .date-picker-trigger:hover {
+  border-color: rgba(255, 107, 157, 0.6);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.2);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.batch-update-control .date-picker-trigger.open {
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.25);
+  transform: translateY(-1px);
+}
+
+.batch-update-control .date-picker-trigger.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: rgba(241, 243, 244, 0.5);
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.batch-update-control .date-picker-trigger.disabled:hover {
+  border-color: rgba(255, 107, 157, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: none !important;
+  background: rgba(241, 243, 244, 0.5);
+}
+
+.batch-update-control .date-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.batch-update-control .date-icon {
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
+.batch-update-control .date-text {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.batch-update-control .dropdown-arrow {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  color: var(--primary-color);
+  font-size: 0.7rem;
+}
+
+.batch-update-control .dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.batch-update-control .date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 107, 157, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  z-index: 99999; /* 大幅增加z-index确保在所有其他元素之上 */
+  overflow: hidden;
+  animation: dropdownSlideIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* 侧边栏中的背景遮罩层 */
+.batch-update-control .dropdown-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 99998; /* 略低于下拉框但高于其他元素 */
+  display: block; /* 在侧边栏中始终显示 */
+}
+
+.batch-update-control .search-container {
+  position: relative;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 107, 157, 0.1);
+}
+
+.batch-update-control .date-search {
+  width: 100%;
+  padding: 10px 14px 10px 35px;
+  border: 2px solid rgba(255, 107, 157, 0.2);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+.batch-update-control .date-search:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.1);
+}
+
+.batch-update-control .search-icon {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+.batch-update-control .date-list {
+  max-height: 200px; /* 在侧边栏中使用较小的高度 */
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.batch-update-control .date-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.batch-update-control .date-list::-webkit-scrollbar-track {
+  background: rgba(255, 107, 157, 0.1);
+  border-radius: 2px;
+}
+
+.batch-update-control .date-list::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-gradient);
+  border-radius: 2px;
+}
+
+.batch-update-control .date-list::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-gradient-hover);
+}
+
+.batch-update-control .date-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin: 1px 6px;
+  animation: slideInFromTop 0.4s ease forwards;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.batch-update-control .date-item:hover {
+  background: rgba(255, 107, 157, 0.1);
+  transform: translateX(4px);
+}
+
+.batch-update-control .date-item.selected {
+  background: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+}
+
+.batch-update-control .date-item.selected:hover {
+  background: var(--primary-gradient-hover);
+  transform: translateX(2px);
+}
+
+.batch-update-control .date-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.batch-update-control .date-formatted {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-left: 8px;
+}
+
+.batch-update-control .date-item.selected .date-formatted {
+  opacity: 0.9;
+}
+
+.batch-update-control .no-dates {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+@keyframes slideInFromTop {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.batch-update-btn {
+  background: linear-gradient(45deg, #17a2b8, #138496);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+  border: 1px solid rgba(23, 162, 184, 0.4);
+  width: 100%;
+}
+
+.batch-update-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(23, 162, 184, 0.4);
+  background: linear-gradient(45deg, #1c9bb8, #148fa3);
+  border-color: rgba(23, 162, 184, 0.6);
+}
+
+.batch-update-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+  box-shadow: 0 4px 15px rgba(148, 163, 184, 0.3);
+}
+
+.batch-update-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.update-progress {
+  margin-top: 10px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary-gradient);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.progress-message {
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.progress-message.processing {
+  background: rgba(23, 162, 184, 0.1);
+  color: #17a2b8;
+  border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.progress-message.completed {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.progress-message.skipped {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.progress-message.success {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.progress-message.error {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.update-result {
+  margin-top: 10px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.result-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap; /* 允许换行以适应更多项目 */
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.result-item.success {
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.result-item.failed {
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.result-item.skipped {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.result-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.result-item.success .result-label {
+  color: #28a745;
+}
+
+.result-item.failed .result-label {
+  color: #dc3545;
+}
+
+.result-item.skipped .result-label {
+  color: #ffc107;
+}
+
+.result-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.result-item.success .result-value {
+  color: #155724;
+}
+
+.result-item.failed .result-value {
+  color: #721c24;
+}
+
+.result-item.skipped .result-value {
+  color: #856404;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .sidebar-footer {
@@ -1796,6 +2262,41 @@ body {
   font-size: 0.8rem;
   color: #666;
   margin-top: 2px;
+}
+
+/* 分区信息特殊样式 */
+.zone-path {
+  background: linear-gradient(45deg, #ff6b9d, #c44569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.copyright-type {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+}
+
+.copyright-type[data-type="2"] {
+  background: linear-gradient(45deg, #FF9800, #F57C00);
+}
+
+/* 分区信息的详细展示 */
+.detail-section .zone-path::before {
+  content: "📂 ";
+  opacity: 0.7;
+}
+
+.detail-section .copyright-type::before {
+  content: "🏷️ ";
+  margin-right: 2px;
 }
 
 .detail-desc {

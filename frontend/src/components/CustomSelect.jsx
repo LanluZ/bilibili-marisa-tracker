@@ -10,7 +10,8 @@ const CustomSelect = ({
   options, 
   placeholder = '请选择...', 
   label,
-  icon 
+  icon,
+  disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -44,10 +45,10 @@ const CustomSelect = ({
   const selectedOption = options?.find(option => option.value === value)
 
   return (
-    <div className="custom-select" ref={dropdownRef}>
+    <div className={`custom-select ${disabled ? 'disabled' : ''}`} ref={dropdownRef}>
       <div 
-        className={`select-trigger ${isOpen ? 'open' : ''}`}
-        onClick={() => setIsOpen(!isOpen)}
+        className={`select-trigger ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
       >
         <div className="select-display">
           {icon && <span className="select-icon">{icon}</span>}
@@ -58,7 +59,7 @@ const CustomSelect = ({
         <span className={`dropdown-arrow ${isOpen ? 'rotated' : ''}`}>▼</span>
       </div>
 
-      {isOpen && (
+      {isOpen && !disabled && (
         <>
           {/* 背景遮罩层 */}
           <div className="dropdown-backdrop" onClick={() => setIsOpen(false)} />

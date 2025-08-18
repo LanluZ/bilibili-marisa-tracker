@@ -1,4 +1,5 @@
 import { formatViewCount } from '../utils/formatters.js'
+import { getZoneName, getZonePath, getCopyrightName, formatVideoZoneInfo } from '../utils/bilibiliZoneUtils.js'
 
 /**
  * 视频详情卡片组件
@@ -80,7 +81,7 @@ const VideoDetailCard = ({ videoDetail, loading, error, onClose }) => {
         </div>
 
         {/* 分区信息 */}
-        {(videoDetail.tid || videoDetail.tname) && (
+        {(videoDetail.tid || videoDetail.tname || videoDetail.tid_v2) && (
           <div className="detail-section">
             <h4>分区信息</h4>
             {videoDetail.tid && (
@@ -105,6 +106,18 @@ const VideoDetailCard = ({ videoDetail, loading, error, onClose }) => {
               <div className="detail-item">
                 <span className="detail-label">分区名(v2):</span>
                 <span className="detail-value">{videoDetail.tname_v2}</span>
+              </div>
+            )}
+            {videoDetail.tid_v2 && getZoneName(videoDetail.tid_v2) && (
+              <div className="detail-item">
+                <span className="detail-label">详细分区:</span>
+                <span className="detail-value zone-path">{getZonePath(videoDetail.tid_v2)}</span>
+              </div>
+            )}
+            {videoDetail.copyright && (
+              <div className="detail-item">
+                <span className="detail-label">视频类型:</span>
+                <span className="detail-value copyright-type">{getCopyrightName(videoDetail.copyright)}</span>
               </div>
             )}
           </div>
