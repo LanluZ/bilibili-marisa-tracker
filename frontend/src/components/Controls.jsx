@@ -105,9 +105,11 @@ const Controls = ({
         const videoCount = getMainZoneVideoCount(tid)
         return {
           value: tid,
-          label: `${zone.name} (${videoCount})`
+          label: `${zone.name} (${videoCount})`,
+          videoCount
         }
       })
+      .filter(option => option.videoCount > 0) // 只显示有视频的分区
       .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(option => mainZoneOptions.push(option))
     
@@ -134,9 +136,11 @@ const Controls = ({
         const videoCount = zoneStats[tid] || 0
         return {
           value: tid,
-          label: `${name} (${videoCount})`
+          label: `${name} (${videoCount})`,
+          videoCount
         }
       })
+      .filter(option => option.videoCount > 0) // 只显示有视频的子分区
       .sort((a, b) => a.label.localeCompare(b.label))
       .forEach(option => subZoneOptions.push(option))
     
