@@ -259,10 +259,10 @@ body {
   color: #ff6b9d;
 }
 
-/* 子分区动画样式 - 修复空隙问题 */
+/* 子分区动画样式 - 修复下拉框问题 */
 .sub-zone-group {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  overflow: hidden;
+  overflow: visible; /* 改回 visible 以允许下拉框显示 */
   width: 0;
   min-width: 0;
   max-width: 0;
@@ -270,6 +270,9 @@ body {
   transform: translateX(-15px) scale(0.98);
   margin: 0;
   padding: 0;
+  flex-basis: 0; /* 明确指定 flex 基础大小为 0 */
+  flex-shrink: 1;
+  flex-grow: 0;
 }
 
 .sub-zone-group.hide {
@@ -281,6 +284,9 @@ body {
   pointer-events: none;
   margin: 0;
   padding: 0;
+  flex-basis: 0;
+  flex-shrink: 1;
+  flex-grow: 0;
 }
 
 .sub-zone-group.show {
@@ -294,6 +300,9 @@ body {
   gap: 10px;
   margin-right: 25px;
   padding: 0;
+  flex-basis: 180px;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 /* 子分区标签和选择框 - 流畅的延迟动画 */
