@@ -13,12 +13,15 @@ import {
 } from './components/index.js'
 
 // 导入自定义Hooks
-import { useDates, useVideos, useCrawlStatus, usePagination, useZoneStats } from './hooks/useData.js'
+import { useDates, useVideos, useCrawlStatus, useZoneStats } from './hooks/useData.js'
 import { useSidebar } from './hooks/useSidebar.js'
 import { useVideoDetail } from './hooks/useVideoDetail.js'
 
 // 导入设备检测工具
 import { addDeviceClassToBody } from './utils/deviceDetection.js'
+
+// 导入常量
+import { PAGINATION } from './shared/constants/app.js'
 
 function App() {
   // 设备检测
@@ -45,7 +48,7 @@ function App() {
     subZoneName: ''
   })
   
-  const videosPerPage = 15 // 每页15个视频
+  const videosPerPage = PAGINATION.VIDEOS_PER_PAGE
 
   // 使用自定义Hooks
   const { dates, selectedDate, setSelectedDate } = useDates()

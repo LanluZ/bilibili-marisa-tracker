@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getDates, getVideos, getCrawlStatus, startCrawl, getZoneStats } from '../services/api.js'
 
 /**
@@ -8,7 +8,7 @@ export const useDates = () => {
   const [dates, setDates] = useState([])
   const [selectedDate, setSelectedDate] = useState('')
 
-  const fetchDates = async () => {
+  const fetchDates = useCallback(async () => {
     try {
       const datesList = await getDates()
       setDates(datesList)
@@ -19,11 +19,11 @@ export const useDates = () => {
       console.error('获取日期失败:', error)
       setDates([])
     }
-  }
+  }, [selectedDate])
 
   useEffect(() => {
     fetchDates()
-  }, [])
+  }, [fetchDates])
 
   return {
     dates,
@@ -41,7 +41,7 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
   const [loading, setLoading] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
-  const fetchVideos = async () => {
+  const fetchVideos = useCallback(async () => {
     setLoading(true)
     setIsTransitioning(true)
     
@@ -75,13 +75,13 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedDate, sortBy, sortOrder, mainZone, subZone, currentPage, videosPerPage])
 
   useEffect(() => {
     if (selectedDate) {
       fetchVideos()
     }
-  }, [selectedDate, sortBy, sortOrder, currentPage, mainZone, subZone])
+  }, [selectedDate, sortBy, sortOrder, currentPage, mainZone, subZone, fetchVideos])
 
   return {
     videos,
@@ -177,7 +177,7 @@ export const useZoneStats = (selectedDate) => {
   const [zoneStats, setZoneStats] = useState({})
   const [loading, setLoading] = useState(false)
 
-  const fetchZoneStats = async () => {
+  const fetchZoneStats = useCallback(async () => {
     setLoading(true)
     try {
       const stats = await getZoneStats(selectedDate)
@@ -188,13 +188,13 @@ export const useZoneStats = (selectedDate) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedDate])
 
   useEffect(() => {
     if (selectedDate) {
       fetchZoneStats()
     }
-  }, [selectedDate])
+  }, [selectedDate, fetchZoneStats])
 
   return {
     zoneStats,

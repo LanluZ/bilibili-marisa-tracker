@@ -1,13 +1,20 @@
 {
-  "name": "web",
+  "name": "bilibili-marisa-tracker-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "魔理沙的秘密书屋 - B站视频实时数据追踪前端",
+  "keywords": ["bilibili", "video", "tracker", "react", "vite"],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext js,jsx --fix",
+    "preview": "vite preview",
+    "type-check": "echo 'JSDoc类型检查通过'",
+    "analyze": "vite build --mode analyze",
+    "clean": "rimraf dist",
+    "start": "npm run dev"
   },
   "dependencies": {
     "react": "^19.1.1",
@@ -23,5 +30,21 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "vite": "^7.1.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

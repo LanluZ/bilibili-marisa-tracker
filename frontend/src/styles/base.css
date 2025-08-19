@@ -1,0 +1,123 @@
+/* 基础重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-image:
+    linear-gradient(135deg, rgba(255, 107, 157, 0.5) 0%, rgba(196, 69, 105, 0.5) 25%, rgba(248, 181, 0, 0.5) 50%, rgba(255, 107, 157, 0.5) 75%, rgba(196, 69, 105, 0.5) 100%),
+    url('./index.jpg');
+  background-size: 300% 300%, cover;
+  background-position: center center, center center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+  animation: gradientShift 15s ease infinite;
+  min-height: 100vh;
+  color: #333;
+  overflow-x: hidden;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-medium);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-gradient);
+  border-radius: var(--border-radius-medium);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-gradient-hover);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-gradient-active);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 选择文本样式 */
+::selection {
+  background-color: rgba(255, 107, 157, 0.3);
+  color: #333;
+}
+
+::-moz-selection {
+  background-color: rgba(255, 107, 157, 0.3);
+  color: #333;
+}
+
+/* 焦点样式 */
+*:focus {
+  outline: none;
+  box-shadow: var(--focus-shadow);
+}
+
+/* 链接样式 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-fast) ease;
+}
+
+a:hover {
+  color: #d65584;
+}
+
+/* 按钮基础样式 */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition-fast) ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 输入框基础样式 */
+input, select, textarea {
+  font-family: inherit;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius-medium);
+  padding: 8px 12px;
+  transition: border-color var(--transition-fast) ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary-color);
+}
+
+/* 图片懒加载 */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity var(--transition-medium) ease;
+}
+
+img[loading="lazy"]:not([src=""]) {
+  opacity: 1;
+}

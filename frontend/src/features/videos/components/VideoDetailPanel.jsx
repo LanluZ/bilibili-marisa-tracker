@@ -1,6 +1,6 @@
 import React from 'react';
 import VideoDetailCard from './VideoDetailCard';
-import '../styles/components/VideoDetailPanel.css';
+import '../../../styles/components/VideoDetailPanel.css';
 
 /**
  * 视频详情面板组件 - 显示在侧边栏左侧的独立面板

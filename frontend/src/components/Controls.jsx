@@ -2,9 +2,17 @@ import DatePicker from './DatePicker'
 import CustomSelect from './CustomSelect'
 import bilibiliZones from '../utils/bilibiliZones.json'
 import { useState, useEffect } from 'react'
+import { 
+  SORT_BY_OPTIONS, 
+  SORT_ORDER_OPTIONS, 
+  DEFAULT_ZONE_OPTION, 
+  DEFAULT_SUB_ZONE_OPTION,
+  EMPTY_STATE_MESSAGES 
+} from '../shared/constants/options.js'
 
 /**
  * 控制面板组件
+ * @param {import('../shared/types/index.js').ControlsProps} props
  */
 const Controls = ({ 
   dates,
@@ -48,59 +56,14 @@ const Controls = ({
     
     return totalCount
   }
-  // 排序方式选项
-  const sortOptions = [
-    { 
-      value: 'view_count', 
-      label: '播放量', 
-      icon: '',
-      description: '按视频播放量排序' 
-    },
-    { 
-      value: 'online_count', 
-      label: '当前在线人数', 
-      icon: '',
-      description: '按当前观看人数排序' 
-    },
-    { 
-      value: 'max_online_count', 
-      label: '历史最高在线人数', 
-      icon: '',
-      description: '按历史最高在线人数排序'
-    },
-    { 
-      value: 'title', 
-      label: '标题', 
-      icon: '',
-      description: '按视频标题排序' 
-    }
-  ]
-
-  // 排序顺序选项
-  const orderOptions = [
-    { 
-      value: 'desc', 
-      label: '降序', 
-      icon: '',
-      description: '从高到低排列' 
-    },
-    { 
-      value: 'asc', 
-      label: '升序', 
-      icon: '',
-      description: '从低到高排列' 
-    }
-  ]
 
   // 获取所有主分区选项
   const getMainZoneOptions = () => {
     const zones = bilibiliZones.bilibiliZonesV2
-    const mainZoneOptions = [
-      { value: '', label: '全部分区' }
-    ]
+    const mainZoneOptions = [DEFAULT_ZONE_OPTION]
     
     Object.entries(zones)
-      .filter(([tid, zone]) => !zone.hidden) // 过滤隐藏分区
+      .filter(([, zone]) => !zone.hidden) // 过滤隐藏分区
       .map(([tid, zone]) => {
         const videoCount = getMainZoneVideoCount(tid)
         return {
@@ -119,17 +82,15 @@ const Controls = ({
   // 获取子分区选项
   const getSubZoneOptions = () => {
     if (!zoneFilter?.mainZone) {
-      return [{ value: '', label: '请先选择主分区' }]
+      return [{ value: '', label: EMPTY_STATE_MESSAGES.NO_MAIN_ZONE }]
     }
     
     const zone = bilibiliZones.bilibiliZonesV2[zoneFilter.mainZone]
     if (!zone || !zone.children) {
-      return [{ value: '', label: '该分区无子分区' }]
+      return [{ value: '', label: EMPTY_STATE_MESSAGES.NO_SUB_ZONES }]
     }
     
-    const subZoneOptions = [
-      { value: '', label: '全部子分区' }
-    ]
+    const subZoneOptions = [DEFAULT_SUB_ZONE_OPTION]
     
     Object.entries(zone.children)
       .map(([tid, name]) => {
@@ -207,7 +168,7 @@ const Controls = ({
         <CustomSelect
           value={sortBy}
           onChange={onSortByChange}
-          options={sortOptions}
+          options={SORT_BY_OPTIONS}
           placeholder="选择排序方式"
           icon="📊"
         />
@@ -218,7 +179,7 @@ const Controls = ({
         <CustomSelect
           value={sortOrder}
           onChange={onSortOrderChange}
-          options={orderOptions}
+          options={SORT_ORDER_OPTIONS}
           placeholder="选择排序顺序"
           icon="🔢"
         />

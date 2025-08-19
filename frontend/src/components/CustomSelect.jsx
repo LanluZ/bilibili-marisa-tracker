@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import './CustomSelect.css'
+import '../styles/components/CustomSelect.css'
 
 /**
  * 自定义下拉框组件
@@ -9,7 +9,6 @@ const CustomSelect = ({
   onChange, 
   options, 
   placeholder = '请选择...', 
-  label,
   icon,
   disabled = false
 }) => {
