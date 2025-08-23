@@ -40,6 +40,9 @@ function App() {
   const [sortBy, setSortBy] = useState('view_count')
   const [sortOrder, setSortOrder] = useState('desc')
   
+  // 搜索状态
+  const [searchTerm, setSearchTerm] = useState('')
+  
   // 分区筛选状态
   const [zoneFilter, setZoneFilter] = useState({
     mainZone: '',
@@ -89,7 +92,8 @@ function App() {
     currentPage, 
     videosPerPage,
     zoneFilter.mainZone,
-    zoneFilter.subZone
+    zoneFilter.subZone,
+    searchTerm
   )
   
   // 计算总页数
@@ -99,12 +103,18 @@ function App() {
   const { videoDetail, loading: detailLoading, error: detailError, fetchVideoDetail, clearVideoDetail } = useVideoDetail()
 
   // 当筛选条件改变时重置到第一页
-  const handleFiltersChange = (newSortBy, newSortOrder, newSelectedDate, newZoneFilter) => {
+  const handleFiltersChange = (newSortBy, newSortOrder, newSelectedDate, newZoneFilter, newSearchTerm) => {
     if (newSortBy !== undefined) setSortBy(newSortBy)
     if (newSortOrder !== undefined) setSortOrder(newSortOrder)
     if (newSelectedDate !== undefined) setSelectedDate(newSelectedDate)
     if (newZoneFilter !== undefined) setZoneFilter(newZoneFilter)
+    if (newSearchTerm !== undefined) setSearchTerm(newSearchTerm)
     setCurrentPage(1)
+  }
+
+  // 处理搜索
+  const handleSearch = (term) => {
+    handleFiltersChange(undefined, undefined, undefined, undefined, term)
   }
 
   // 处理分区筛选变化
@@ -145,7 +155,7 @@ function App() {
       />
 
       <div className="page-transition">
-        <Header />
+        <Header onSearch={handleSearch} />
 
         <Controls
           dates={dates}

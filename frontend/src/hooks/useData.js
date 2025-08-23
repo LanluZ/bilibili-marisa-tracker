@@ -35,7 +35,7 @@ export const useDates = () => {
 /**
  * 管理视频数据的Hook
  */
-export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPerPage = 15, mainZone = '', subZone = '') => {
+export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPerPage = 15, mainZone = '', subZone = '', searchTerm = '') => {
   const [videos, setVideos] = useState([])
   const [totalVideos, setTotalVideos] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -54,13 +54,22 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
         subZone
       })
       
+      // 如果有搜索词，进行客户端搜索过滤
+      let filteredVideos = allVideos
+      if (searchTerm && searchTerm.trim().length > 0) {
+        const searchTermLower = searchTerm.trim().toLowerCase()
+        filteredVideos = allVideos.filter(video => 
+          video.title && video.title.toLowerCase().includes(searchTermLower)
+        )
+      }
+      
       // 设置总视频数
-      setTotalVideos(allVideos.length)
+      setTotalVideos(filteredVideos.length)
       
       // 分页处理
       const startIndex = (currentPage - 1) * videosPerPage
       const endIndex = startIndex + videosPerPage
-      const paginatedVideos = allVideos.slice(startIndex, endIndex)
+      const paginatedVideos = filteredVideos.slice(startIndex, endIndex)
       
       // 延迟设置数据以创建流畅的过渡效果
       setTimeout(() => {
@@ -75,13 +84,13 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
     } finally {
       setLoading(false)
     }
-  }, [selectedDate, sortBy, sortOrder, mainZone, subZone, currentPage, videosPerPage])
+  }, [selectedDate, sortBy, sortOrder, mainZone, subZone, currentPage, videosPerPage, searchTerm])
 
   useEffect(() => {
     if (selectedDate) {
       fetchVideos()
     }
-  }, [selectedDate, sortBy, sortOrder, currentPage, mainZone, subZone, fetchVideos])
+  }, [selectedDate, sortBy, sortOrder, currentPage, mainZone, subZone, searchTerm, fetchVideos])
 
   return {
     videos,
