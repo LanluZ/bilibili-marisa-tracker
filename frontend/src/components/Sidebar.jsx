@@ -114,6 +114,16 @@ const Sidebar = ({
                 <span className="sidebar-link-text">GitHub 仓库</span>
                 <span className="sidebar-link-external">↗</span>
               </a>
+              <a 
+                href="https://space.bilibili.com/41319368?spm_id_from=..0.0" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="sidebar-link"
+              >
+                <span className="sidebar-link-icon">📺</span>
+                <span className="sidebar-link-text">Bilibili</span>
+                <span className="sidebar-link-external">↗</span>
+              </a>
             </div>
           </div>
 
