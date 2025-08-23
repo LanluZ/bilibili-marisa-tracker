@@ -136,7 +136,7 @@ export class StatsService {
   static async getZoneStats(date) {
     const params = date ? { date } : {}
     const data = await apiClient.get(API_CONFIG.ENDPOINTS.ZONE_STATS, params)
-    return data?.stats || {}
+    return data?.zone_stats || {}
   }
 }
 

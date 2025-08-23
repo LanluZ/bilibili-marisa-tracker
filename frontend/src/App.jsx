@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 
 // 导入组件
@@ -54,7 +54,30 @@ function App() {
   const { dates, selectedDate, setSelectedDate } = useDates()
   const { crawlStatus, startCrawl } = useCrawlStatus()
   const { sidebarOpen, toggleSidebar } = useSidebar()
-  const { zoneStats } = useZoneStats(selectedDate)
+  const { zoneStats, refetch: refetchZoneStats } = useZoneStats(selectedDate)
+  
+  // 使用 useRef 跟踪前一个爬虫状态
+  const prevCrawlingRef = useRef(false)
+  
+  // 监听爬虫状态变化，在爬取完成后自动刷新分区统计
+  useEffect(() => {
+    // 如果爬虫从正在运行变为停止，则刷新分区统计
+    if (prevCrawlingRef.current && !crawlStatus.is_crawling) {
+      refetchZoneStats()
+    }
+    prevCrawlingRef.current = crawlStatus.is_crawling
+  }, [crawlStatus.is_crawling, refetchZoneStats])
+
+  // 增强的开始爬取函数，完成后自动刷新分区统计
+  const handleStartCrawl = async () => {
+    const success = await startCrawl()
+    if (success) {
+      // 爬取启动成功后，等待一段时间再刷新统计
+      setTimeout(() => {
+        refetchZoneStats()
+      }, 2000)
+    }
+  }
   
   // 临时状态用于分页
   const [currentPage, setCurrentPage] = useState(1)
@@ -118,7 +141,7 @@ function App() {
         currentPage={currentPage}
         totalPages={totalPages}
         crawlStatus={crawlStatus}
-        onStartCrawl={startCrawl}
+        onStartCrawl={handleStartCrawl}
       />
 
       <div className="page-transition">

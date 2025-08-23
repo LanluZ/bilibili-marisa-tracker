@@ -113,9 +113,11 @@ export const useCrawlStatus = () => {
       await startCrawl()
       alert('爬取任务已启动！')
       fetchCrawlStatus()
+      return true
     } catch (error) {
       console.error('启动爬取失败:', error)
       alert(`启动失败: ${error.message}`)
+      return false
     }
   }
 
@@ -191,9 +193,7 @@ export const useZoneStats = (selectedDate) => {
   }, [selectedDate])
 
   useEffect(() => {
-    if (selectedDate) {
-      fetchZoneStats()
-    }
+    fetchZoneStats()
   }, [selectedDate, fetchZoneStats])
 
   return {

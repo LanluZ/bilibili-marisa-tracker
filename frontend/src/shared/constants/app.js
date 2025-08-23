@@ -31,7 +31,7 @@ export const API_CONFIG = {
     CRAWL_STATUS: '/api/crawl/status',
     CRAWL_START: '/api/crawl/start',
     VIDEO_DETAIL: '/api/video/detail',
-    ZONE_STATS: '/api/zone-stats',
+    ZONE_STATS: '/api/zone/stats',
     PROXY_IMAGE: '/api/proxy/image',
   },
 }
