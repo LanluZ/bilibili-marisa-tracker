@@ -25,6 +25,12 @@ export const SORT_BY_OPTIONS = [
     description: '按历史最高在线人数排序'
   },
   { 
+    value: SORT_OPTIONS.FIELDS.VIEW_ONLINE_RATIO, 
+    label: '播放量/在线人数比', 
+    icon: '📈',
+    description: '按播放量与在线人数比值排序' 
+  },
+  { 
     value: SORT_OPTIONS.FIELDS.TITLE, 
     label: '标题', 
     icon: '🔤',

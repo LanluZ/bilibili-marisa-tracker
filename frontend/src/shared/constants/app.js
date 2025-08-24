@@ -15,6 +15,7 @@ export const SORT_OPTIONS = {
     ONLINE_COUNT: 'online_count',
     MAX_ONLINE_COUNT: 'max_online_count',
     TITLE: 'title',
+    VIEW_ONLINE_RATIO: 'view_online_ratio',
   },
   ORDERS: {
     DESC: 'desc',

@@ -46,10 +46,13 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
     setIsTransitioning(true)
     
     try {
+      // 对于播放量/在线人数比，需要获取原始数据后在前端排序
+      const needClientSorting = sortBy === 'view_online_ratio'
+      
       const allVideos = await getVideos({
         date: selectedDate,
-        sortBy,
-        order: sortOrder,
+        sortBy: needClientSorting ? 'view_count' : sortBy, // 如果需要前端排序，先按播放量获取
+        order: needClientSorting ? 'desc' : sortOrder,
         mainZone,
         subZone
       })
@@ -61,6 +64,27 @@ export const useVideos = (selectedDate, sortBy, sortOrder, currentPage, videosPe
         filteredVideos = allVideos.filter(video => 
           video.title && video.title.toLowerCase().includes(searchTermLower)
         )
+      }
+      
+      // 如果是播放量/在线人数比排序，在前端进行排序
+      if (needClientSorting) {
+        filteredVideos = filteredVideos.sort((a, b) => {
+          const parseOnlineCount = (onlineStr) => {
+            if (!onlineStr || onlineStr === '0') return 0
+            const str = String(onlineStr).replace(/[+万,]/g, '')
+            const num = parseFloat(str)
+            return isNaN(num) ? 0 : num
+          }
+          
+          const aOnline = parseOnlineCount(a.online_count)
+          const bOnline = parseOnlineCount(b.online_count)
+          
+          // 避免除零错误，如果在线人数为0，给一个很小的值
+          const aRatio = aOnline === 0 ? (a.view_count || 0) / 0.1 : (a.view_count || 0) / aOnline
+          const bRatio = bOnline === 0 ? (b.view_count || 0) / 0.1 : (b.view_count || 0) / bOnline
+          
+          return sortOrder === 'desc' ? bRatio - aRatio : aRatio - bRatio
+        })
       }
       
       // 设置总视频数
